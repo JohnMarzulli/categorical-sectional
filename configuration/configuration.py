@@ -36,6 +36,7 @@ BLINK_OLD_STATIONS_KEY = "blink_old_stations"
 SNOW_PULSE_KEY = "snow_pulse"
 SNOW_TWINKLE_KEY = "snow_twinkle"
 NIGHT_LIGHTS_KEY = "night_lights"
+LIGHTNING_BLINK_KEY = "lightning_blink"
 NIGHT_POPULATED_YELLOW_KEY = "night_populated_yellow"
 NIGHT_CATEGORY_PROPORTION_KEY = "night_category_proportion"
 BRIGHTNESS_PROPORTION_KEY = "brightness_proportion"
@@ -56,6 +57,9 @@ __VALID_KEYS__ = [
     NIGHT_LIGHTS_KEY,
     NIGHT_POPULATED_YELLOW_KEY,
     NIGHT_CATEGORY_PROPORTION_KEY,
+    LIGHTNING_BLINK_KEY,
+    SNOW_PULSE_KEY,
+    SNOW_TWINKLE_KEY,
     BRIGHTNESS_PROPORTION_KEY,
     VISUALIZER_INDEX_KEY,
     PIXEL_ORDER_KEY,
@@ -405,6 +409,12 @@ def get_snow_twinkle():
     """
     return __get_boolean_config_value__(SNOW_TWINKLE_KEY, True)
 
+def get_lightning_blink():
+    """
+    Do statioins blink yellow when there is lightning reported?
+    Flight rules visualizer only.
+    """
+    return __get_boolean_config_value__(LIGHTNING_BLINK_KEY, True)
 
 def get_night_lights():
     """

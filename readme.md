@@ -162,7 +162,6 @@ This will transition/fade into yellow from the standard category color.
 
 Setting this to `false` will result in the category color fading. The amount the category fades is determined by `night_category_proportion`
 
-
 #### snow_pulse
 
 Set this to `true` if you would like stations that are reporting snow to pulse between a low light and white while using the Precipitation visualizer. This is overriden by the twinkle option.
@@ -173,6 +172,11 @@ Defaults to `false`.
 
 Set this to `true` if you would like stations that are reporting snow to twinkle between a low light and white while using the Precipitation visualizer.
 
+Defaults to `true`.
+
+#### lightning_blink
+
+Set this to `true` if lightning should cause a station to blink yellow. This applies to the Flight Rules visualizer only.
 Defaults to `true`.
 
 #### night_category_proportion
@@ -451,6 +455,7 @@ This mode cycles all of the stations through the spectrum, but all stations shif
 
 | Version | Change                                                                                                                                                                                                                                                                                 |
 | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2.2     | Allow for lightning to be disabled.
 | 2.1     | Change precipitation visualizer to pulse the snow color to make it distinct from "nothing"
 | 2.0.1   | Minor tweak to ceiling categorization.                                                                                                                                                                                                                                                 |
 | 2.0     | Add a remote control app that allows for brightness, night effects, and more to be changed on the fly. Add support for WS2811 and WS2812 based lights. Major performance improvements for adressable RGB LEDs. Selectable visualizers. Removed support for hard wired GPIO based LEDs. |

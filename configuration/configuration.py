@@ -46,6 +46,9 @@ PIXEL_ORDER_DEFAULT = "GRB"
 METAR_STATION_INACTIVE_MINUTES_KEY = "metar_station_inactive_minutes"
 DEFAULT_METAR_STATION_INACTIVE_MINUTES = 3 * 60
 
+ON_TIME_KEY = "on_time"
+OFF_TIME_KEY = "off_time"
+
 __VALID_KEYS__ = [
     LED_MODE_KEY,
     PIXEL_COUNT_KEY,
@@ -59,7 +62,9 @@ __VALID_KEYS__ = [
     BRIGHTNESS_PROPORTION_KEY,
     VISUALIZER_INDEX_KEY,
     PIXEL_ORDER_KEY,
-    METAR_STATION_INACTIVE_MINUTES_KEY
+    METAR_STATION_INACTIVE_MINUTES_KEY,
+    ON_TIME_KEY,
+    OFF_TIME_KEY
 ]
 
 __VALID_PIXEL_ORDERS__ = [
@@ -501,6 +506,44 @@ def get_airport_configs():
     """
 
     return __load_station_config__(get_airport_file())
+
+
+def get_on_time():
+    """
+    Get the ON time for the map.
+    If the value is not in the configuration, then no on/off function is used.
+
+    Returns:
+        str: The ON time (ie. 0830 for 8:30AM).
+    """
+    try:
+        value = CONFIG[ON_TIME_KEY]
+
+        if value == "" or int(value) < 0 or int(value) > 2359:
+            return None
+        else:
+            return value
+    except Exception:
+        return None
+
+
+def get_off_time():
+    """
+    Get the OFF time for the map.
+    If the value is not in the configuration, then no on/off function is used.
+
+    Returns:
+        str: The OFF time (ie. 2100 for 9:00PM).
+    """
+    try:
+        value = CONFIG[OFF_TIME_KEY]
+
+        if value == "" or int(value) < 0 or int(value) > 2359:
+            return None
+
+        return value
+    except Exception:
+        return None
 
 
 def __load_station_config__(

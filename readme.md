@@ -109,7 +109,9 @@ You do not need to include ALL of these values. Any values provided in this file
   "snow_twinkle": true,
   "night_category_proportion": 0.05,
   "brightness_proportion": 1.0,
-  "visualizer": 0
+  "visualizer": 0,
+  "on_time": "0800",
+  "off_time": "2130"
 }
 ```
 
@@ -211,15 +213,35 @@ This controls which type of LED system to use for controlling the lights.
 
 #### pixel_count
 
-If you are using ws2801 based LEDs then you may need to change "pixel_count". Each strand will come with a numbe rof LEDs. You you are using a single strand, then set this number to that count. If you have combined strands, then set the total number of lights.
+If you are using ws2801 based LEDs then you may need to change "pixel_count". Each strand will come with a number of LEDs. If you are using a single strand, then set this number to that count. If you have combined strands, then set the total number of lights.
 
 #### spi_device and spi_port
 
 You will probably not need to change this. If you do need to change this, then you probably know what to do.
 
+#### gpio_pin
+
+Used with ws281x mode strings to set the GPIO pin.   ie.  18
+
 #### airports_file
 
 This is the file that contains the airport names and the wiring configuration for them.
+
+#### on_time
+
+This is the (local) time when the map will start displaying.  ie. 0800 is 8:00am
+
+Defaults to "" which means the display will always be on.  
+
+_NOTE:_ If this is set, the off_time value must also be set.
+
+#### off_time
+
+This is the (local) time when the map will stop displaying.  ie. 2130 is 9:30pm
+
+Defaults to "" which means the display will always be on.  
+
+_NOTE:_ If this is set, the on_time value must also be set.
 
 ### Airports File
 
@@ -450,8 +472,9 @@ This mode cycles all of the stations through the spectrum, but all stations shif
 ## Version History
 
 | Version | Change                                                                                                                                                                                                                                                                                 |
-| ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 2.1     | Change precipitation visualizer to pulse the snow color to make it distinct from "nothing"
+|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2.2     | Add support for on/off times for displaying the map.                                                                                                                                                                                                                                   |
+| 2.1     | Change precipitation visualizer to pulse the snow color to make it distinct from "nothing"                                                                                                                                                                                             |
 | 2.0.1   | Minor tweak to ceiling categorization.                                                                                                                                                                                                                                                 |
 | 2.0     | Add a remote control app that allows for brightness, night effects, and more to be changed on the fly. Add support for WS2811 and WS2812 based lights. Major performance improvements for adressable RGB LEDs. Selectable visualizers. Removed support for hard wired GPIO based LEDs. |
 | 1.10    | Add service that allows the configuration to be updated remotely without using the command line.                                                                                                                                                                                       |

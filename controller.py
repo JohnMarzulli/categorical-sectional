@@ -2,6 +2,7 @@
 # Dylan Rush 2017
 # Additional modifications:
 #   2018-2020, John Marzulli
+#   2022, Darryl Quinn
 # dylanhrush.com
 # Uses RPi.GPIO library: https://sourceforge.net/p/raspberry-gpio-python/wiki/BasicUsage/
 # Free for personal use. Prohibited for commercial without consent
@@ -144,6 +145,7 @@ def render_thread():
     tic = time.perf_counter()
     toc = time.perf_counter()
     debug_pixels_timer = None
+    display = True
 
     loaded_visualizers = visualizers.VisualizerManager.initialize_visualizers(
         renderer,
@@ -163,7 +165,28 @@ def render_thread():
                 renderer.clear()
                 last_visualizer = visualizer_index
 
-            loaded_visualizers[visualizer_index].update(delta_time)
+            on_time = configuration.get_on_time()
+            #safe_logging.safe_log("on_time= {} type is {}".format(on_time, type(on_time)))
+            off_time = configuration.get_off_time()
+            #safe_logging.safe_log("off_time= {} type is {}".format(off_time, type(off_time)))
+
+            if not (on_time is None or off_time is None):
+                current_time = int(datetime.now().strftime("%H%M"))
+                #safe_logging.safe_log('Current/On/Off times: {} / {} / {}'.format(current_time, on_time, off_time))
+                if int(on_time) <= current_time < int(off_time):
+                    if display is False:
+                        safe_logging.safe_log('Waking up at {} until {}'.format(current_time, off_time))
+                    display = True
+                else:
+                    if display is True:
+                        safe_logging.safe_log('Going to sleep at {} until {}'.format(current_time, on_time))
+                    display = False
+
+            if display:
+                loaded_visualizers[visualizer_index].update(delta_time)
+            else:
+                all_stations(colors_lib.OFF)
+                time.sleep(10.0)
 
             show_debug_pixels = debug_pixels_timer is None or (
                 datetime.utcnow() - debug_pixels_timer).total_seconds() > 60.0

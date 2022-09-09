@@ -1,5 +1,5 @@
 {
-  "mode": "ws2801",
+  "mode": "ws281x",
   "pixel_count": 50,
   "spi_port": 0,
   "spi_device": 0,
@@ -12,5 +12,7 @@
   "snow_twinkle": true,
   "night_category_proportion": 0.1,
   "brightness_proportion": 0.6,
-  "visualizer": 0
+  "visualizer": 0,
+  "on_time": "",
+  "off_time": ""
 }

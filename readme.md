@@ -103,6 +103,7 @@ You do not need to include ALL of these values. Any values provided in this file
   "spi_port": 0,
   "airports_file": "data/kawo_to_kosh.json",
   "blink_old_stations": true,
+  "blink_lightning": true,
   "night_lights": true,
   "night_populated_yellow": false,
   "night_category_proportion": 0.05,
@@ -141,6 +142,12 @@ Set this to `false` if you would like the stations to remain the last known cate
 The default is `true`. When the value is set to `true` any station with data older than 90 minutes will start blinking to indicate that the data is old.
 
 When new data is received that has an issue date less than 90 minutes from the current time, then the light will stop blinking.
+
+#### blink_lightning
+
+Set this to `false` if you would like the prevent stations from blinking (alternating yellow) if lightning is present in the metar.
+
+The default is `true`.
 
 #### night_lights
 
@@ -433,6 +440,7 @@ This mode cycles all of the stations through the spectrum, but all stations shif
 
 | Version | Change                                                                                                                                                                                                                                                                                 |
 | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2.1.0   | Add configuration and remote option to disable lighting blinking                                                                                                                                                                                                                       |
 | 2.0.1   | Minor tweak to ceiling categorization.                                                                                                                                                                                                                                                 |
 | 2.0     | Add a remote control app that allows for brightness, night effects, and more to be changed on the fly. Add support for WS2811 and WS2812 based lights. Major performance improvements for adressable RGB LEDs. Selectable visualizers. Removed support for hard wired GPIO based LEDs. |
 | 1.10    | Add service that allows the configuration to be updated remotely without using the command line.                                                                                                                                                                                       |

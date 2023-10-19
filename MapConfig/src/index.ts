@@ -344,6 +344,11 @@ app.post("/", function (request, response) {
   );
   updateHash = mergeIntoHash(
     updateHash,
+    "blink_lightning",
+    getBoolean(request.body.blink_lightning)
+  );
+  updateHash = mergeIntoHash(
+    updateHash,
     "night_lights",
     getBoolean(request.body.night_lights)
   );

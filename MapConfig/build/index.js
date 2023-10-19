@@ -253,6 +253,7 @@ app.post("/", function (request, response) {
     updateHash = mergeIntoHash(updateHash, "spi_port", getNumber(request.body.spi_port));
     updateHash = mergeIntoHash(updateHash, "airports_file", request.body.airports_file);
     updateHash = mergeIntoHash(updateHash, "blink_old_stations", getBoolean(request.body.blink_old_stations));
+    updateHash = mergeIntoHash(updateHash, "blink_lightning", getBoolean(request.body.night_lights));
     updateHash = mergeIntoHash(updateHash, "night_lights", getBoolean(request.body.night_lights));
     updateHash = mergeIntoHash(updateHash, "night_populated_yellow", getBoolean(request.body.night_populated_yellow));
     updateHash = mergeIntoHash(updateHash, "night_category_proportion", getNumber(request.body.night_category_proportion));

@@ -23,6 +23,17 @@
                 </td>
             </tr>
             <tr>
+                <td>Blink Stations With Lightning</td>
+                <td style="align-items: flex-start; align-content: flex-start; text-align: left;">
+                    <label class="switch">
+                        <input onchange="remoteControlSettingsForm.submit()" name="blink_lightning"
+                            id="blink_lightning" type="checkbox" value="true"
+                            {{#if configJson.blink_lightning}}checked{{/if}} />
+                        <span class="slider round"></span>
+                    </label>
+                </td>
+            </tr>
+            <tr>
                 <td>Enable "Night Mode"</td>
                 <td style="align-items: flex-start; align-content: flex-start; text-align: left;">
                     <label class="switch">

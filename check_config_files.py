@@ -49,8 +49,7 @@ for station_id in airport_render_config:
     if data_file_icao_code is None or data_file_icao_code == '' or weather.INVALID in data_file_icao_code:
         terminal_error(
             'Unable to fetch the station {} from the CSV data file. Please check that the station is in the CSV file. Error={}'.format(
-                station_id,
-                e))
+                station_id))
 
     # Validate that the station can have weather fetched
     metar = weather.get_metar(station_id)

@@ -4,7 +4,6 @@ Handles configuration loading and constants.
 import json
 import os
 import threading
-import unicodedata
 from pathlib import Path
 
 from lib import local_debug
@@ -34,6 +33,7 @@ GPIO_PIN_KEY = "gpio_pin"
 AIRPORTS_FILE_KEY = "airports_file"
 BLINK_OLD_STATIONS_KEY = "blink_old_stations"
 NIGHT_LIGHTS_KEY = "night_lights"
+BLINK_LIGHTNING_KEY = "blink_lightning"
 NIGHT_POPULATED_YELLOW_KEY = "night_populated_yellow"
 NIGHT_CATEGORY_PROPORTION_KEY = "night_category_proportion"
 BRIGHTNESS_PROPORTION_KEY = "brightness_proportion"
@@ -52,6 +52,7 @@ __VALID_KEYS__ = [
     AIRPORTS_FILE_KEY,
     BLINK_OLD_STATIONS_KEY,
     NIGHT_LIGHTS_KEY,
+    BLINK_LIGHTNING_KEY,
     NIGHT_POPULATED_YELLOW_KEY,
     NIGHT_CATEGORY_PROPORTION_KEY,
     BRIGHTNESS_PROPORTION_KEY,
@@ -378,6 +379,17 @@ def get_blink_station_if_old_data() -> bool:
     """
 
     return __get_boolean_config_value__('blink_old_stations', True)
+
+
+def get_blink_if_lightning() -> bool:
+    """
+    Should old stations blink if the data is considered too old?
+
+    Returns:
+        bool -- Should the station be blinked if the data is too old?
+    """
+
+    return __get_boolean_config_value__('blink_lightning', True)
 
 
 def get_metar_station_inactive_minutes() -> int:

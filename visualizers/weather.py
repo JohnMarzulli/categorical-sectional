@@ -1,3 +1,7 @@
+import random
+from datetime import datetime
+from typing import Tuple
+
 import lib.colors as colors_lib
 from configuration import configuration
 from data_sources import weather
@@ -126,9 +130,51 @@ def get_color_by_temperature_celsius(
     return colors_by_name[colors_lib.RED]
 
 
+def get_twinkle_proportion() -> float:
+    """
+    Get a random proportion to cause likes to twinkle.
+
+    Returns:
+        float: A value between 0.0 and 1.0
+    """
+    value = random.random()
+
+    return value
+
+
+def get_pulse_interval_proportion(
+    current_time: datetime,
+    pulse_interval: float
+) -> float:
+    """
+    Get a value that causes the snow to pulse bright to dim.
+
+    Args:
+        current_time (datetime): The current time. Used to figure out where in the pulse we are.
+        pulse_interval (float): How long a complete pulse takes.
+
+    Returns:
+        float: A value between 0.2 and 1.0
+    """
+    seconds = current_time.second + (current_time.microsecond / 1000000.0)
+    seconds_in_interval = seconds % pulse_interval
+    half_interval = pulse_interval / 2.0
+
+    proportion = seconds_in_interval / half_interval
+
+    if proportion >= 1.0:
+        # 1.2 to 0.2
+        proportion = proportion - 1.0
+        # 0.2 to 0.8
+        proportion = 1.0 - proportion
+
+    return proportion
+
+
 def get_color_by_precipitation(
-    precipitation: str
-) -> (list, bool):
+    precipitation: str,
+    pulse_interval: float = 2.0
+) -> Tuple[list, bool]:
     """
     Given a precipitation category, return a color
     to show on the map.
@@ -142,8 +188,11 @@ def get_color_by_precipitation(
 
     colors_by_name = colors_lib.get_colors()
 
+    no_precip = colors_by_name[colors_lib.GRAY]
+    snow_precip = colors_by_name[colors_lib.WHITE]
+
     if precipitation is None:
-        return (colors_by_name[colors_lib.GRAY], False)
+        return (no_precip, False)
 
     if precipitation is weather.DRIZZLE:
         return (colors_by_name[colors_lib.LIGHT_BLUE], False)
@@ -152,7 +201,25 @@ def get_color_by_precipitation(
         return (colors_by_name[colors_lib.BLUE], precipitation is weather.HEAVY_RAIN)
 
     if precipitation is weather.SNOW:
-        return (colors_by_name[colors_lib.WHITE], False)
+        # We want to make snow pulse
+        # So lets interpolate the color
+        # between "nothing" and snow
+        # such that we use the seconds
+        if configuration.get_snow_twinkle():
+            proportion = get_twinkle_proportion()
+        elif configuration.get_snow_pulse():
+            proportion = get_pulse_interval_proportion(
+                datetime.utcnow(),
+                pulse_interval)
+        else:
+            proportion = 1.0
+
+        color = colors_lib.get_color_mix(
+            no_precip,
+            snow_precip,
+            proportion)
+
+        return (color, False)
 
     if precipitation is weather.ICE:
         return (colors_by_name[colors_lib.LIGHT_GRAY], True)
@@ -290,6 +357,12 @@ class PrecipitationVisualizer(BlinkingVisualizer):
         self.__renderer__.set_leds(
             self.__stations__[station],
             final_color)
+
+    def __get_update_interval__(
+        self
+    ) -> float:
+        # Immediate update
+        return 0.0
 
 
 class PressureVisualizer(BlinkingVisualizer):

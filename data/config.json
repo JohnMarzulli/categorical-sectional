@@ -5,9 +5,11 @@
   "spi_device": 0,
   "metar_station_inactive_minutes": 180,
   "airports_file": "../data/kawo_to_kosh.json",
-  "blink_old_stations": true,
+  "blink_old_stations": false,
   "night_lights": true,
   "night_populated_yellow": false,
+  "snow_pulse": false,
+  "snow_twinkle": true,
   "night_category_proportion": 0.1,
   "brightness_proportion": 0.6,
   "visualizer": 0

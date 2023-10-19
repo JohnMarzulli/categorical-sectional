@@ -248,7 +248,12 @@ class BlinkingVisualizer(Visualizer):
             render_time = self.render_station_displays(
                 is_blink)
 
-            time_to_sleep = 1.0 - render_time
+            time_to_sleep = self.__get_update_interval__() - render_time
 
             if time_to_sleep > 0.0:
                 time.sleep(time_to_sleep)
+
+    def __get_update_interval__(
+        self
+    ) -> float:
+        return 1.0

@@ -528,6 +528,7 @@ def get_metar_from_report_line(metar_report_line_from_webpage):
 
     try:
         metar = extract_metar_from_html_line(metar_report_line_from_webpage)
+        metar = metar.replace("METAR ", "")
 
         if len(metar) < 1:
             return (None, None)
@@ -1077,7 +1078,10 @@ if __name__ == "__main__":
     )
 
     metars = get_metars(airports_to_test)
-    get_metar("KAWO", use_cache=False)
+    kawo_metar = get_metar("KAWO", use_cache=False)
+
+    print(f"BATCH={",".join(metars)}")
+    print(f"KAWO={kawo_metar}")
 
     light_times = get_civil_twilight("KAWO", starting_date_time)
 

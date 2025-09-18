@@ -616,7 +616,7 @@ def get_metars(airport_icao_codes: list) -> list:
     return metars
 
 
-def get_metar_reports_from_web(airport_icao_codes: list) -> dict[str, str]:
+def get_metar_reports_from_web(airport_icao_codes: list):
     """
     Calls to the web an attempts to gets the METARs for the requested station list.
 
@@ -627,7 +627,7 @@ def get_metar_reports_from_web(airport_icao_codes: list) -> dict[str, str]:
         dictionary -- Returns a map of METARs keyed by the station code.
     """
 
-    metars: dict[str, str] = {}
+    metars = {}
     metar_list: str = "%,".join(airport_icao_codes)
     request_url = f"https://aviationweather.gov/api/data/metar?ids={metar_list}&hours=0&order=id%2C-obs&sep=true"
     stream = urllib.request.urlopen(request_url, timeout=2)

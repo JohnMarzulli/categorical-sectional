@@ -1079,8 +1079,9 @@ if __name__ == "__main__":
 
     metars = get_metars(airports_to_test)
     kawo_metar = get_metar("KAWO", use_cache=False)
+    joined_metar_report = ",".join(metars)
 
-    print(f"BATCH={",".join(metars)}")
+    print(f"BATCH={joined_metar_report}")
     print(f"KAWO={kawo_metar}")
 
     light_times = get_civil_twilight("KAWO", starting_date_time)

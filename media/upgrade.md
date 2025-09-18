@@ -39,7 +39,7 @@ Once you have performed this backup process and are sure that your files are in 
 cd ~/categorical-sectional
 git fetch
 git reset --hard HEAD
-git checkout master
+git checkout release
 git pull
 ```
 

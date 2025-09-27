@@ -195,7 +195,7 @@ def __is_cache_valid__(
     return (False, None)
 
 
-def get_faa_csv_identifier(station_icao_code: str) -> str | None:
+def get_faa_csv_identifier(station_icao_code: str):
     """
     Checks to see if the given identifier is in the FAA CSV file.
     If it is not, then checks to see if it is one of the airports

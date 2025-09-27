@@ -236,7 +236,7 @@ def get_civil_twilight(
     station_icao_code: str,
     current_utc_time: datetime = __now_utc__(),
     use_cache: bool = True,
-) -> list[datetime] | None:
+):
     """
     Gets the civil twilight time for the given airport
 
@@ -843,7 +843,7 @@ def get_visibility(metar):
     return VFR
 
 
-def get_main_metar_components(metar: str) -> list | None:
+def get_main_metar_components(metar: str):
     return None if metar is None else metar.split("RMK")[0].split(" ")[1:]
 
 
@@ -877,7 +877,7 @@ def get_ceiling(metar):
     return minimum_ceiling
 
 
-def get_temperature(metar: str) -> int | None:
+def get_temperature(metar: str):
     """
     Returns the temperature (celsius) from the given metar string.
 
@@ -912,7 +912,7 @@ def get_temperature(metar: str) -> int | None:
     return None
 
 
-def get_pressure(metar: str) -> float | None:
+def get_pressure(metar: str):
     """
     Get the inches of mercury from a METAR.
     This **DOES NOT** extract the Sea Level Pressure
@@ -940,7 +940,7 @@ def get_pressure(metar: str) -> float | None:
     return None
 
 
-def get_precipitation(metar: str) -> str | None:
+def get_precipitation(metar: str):
     if metar is None:
         return None
 

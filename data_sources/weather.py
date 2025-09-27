@@ -156,7 +156,7 @@ def __set_cache__(station_icao_code: str, cache: dict, value):
 
 def __is_cache_valid__(
     station_icao_code: str, cache: dict, cache_life_in_minutes: int = 8
-) -> tuple[bool, object]:
+):
     """
     Returns TRUE and the cached value if the cached value
     can still be used.

@@ -1,13 +1,13 @@
-RED = 'RED'
-LIGHT_RED = 'LIGHT RED'
-GREEN = 'GREEN'
-BLUE = 'BLUE'
+RED = "RED"
+LIGHT_RED = "LIGHT RED"
+GREEN = "GREEN"
+BLUE = "BLUE"
 LIGHT_BLUE = "LIGHT BLUE"
-GRAY = 'GRAY'
-LIGHT_GRAY = 'LIGHT GRAY'
-YELLOW = 'YELLOW'
-DARK_YELLOW = 'DARK YELLOW'
-WHITE = 'WHITE'
+GRAY = "GRAY"
+LIGHT_GRAY = "LIGHT GRAY"
+YELLOW = "YELLOW"
+DARK_YELLOW = "DARK YELLOW"
+WHITE = "WHITE"
 MAGENTA = "MAGENTA"
 PURPLE = "PURPLE"
 ORANGE = "ORANGE"
@@ -33,15 +33,11 @@ def get_colors() -> dict:
         DARK_YELLOW: (20, 20, 0),
         WHITE: (255, 255, 255),
         PURPLE: (148, 0, 211),
-        ORANGE: (255, 126, 0)
+        ORANGE: (255, 126, 0),
     }
 
 
-def clamp(
-    minimum,
-    value,
-    maximum
-):
+def clamp(minimum, value, maximum):
     """
     Makes sure the given value (middle param) is always between the maximum and minimum.
 
@@ -54,20 +50,10 @@ def clamp(
         number -- The value within the allowable range.
     """
 
-    if value < minimum:
-        return minimum
-
-    if value > maximum:
-        return maximum
-
-    return value
+    return minimum if value < minimum else min(value, maximum)
 
 
-def interpolate(
-    left_value,
-    right_value,
-    proportion
-):
+def interpolate(left_value, right_value, proportion):
     """
     Finds the spot between the two values.
 
@@ -123,16 +109,15 @@ def interpolate(
 
     return clamp(
         0,
-        int(float(left_value) + (float(right_value -
-                                       float(left_value)) * float(proportion))),
-        255)
+        int(
+            float(left_value)
+            + (float(right_value - float(left_value)) * float(proportion))
+        ),
+        255,
+    )
 
 
-def get_color_mix(
-    left_color: list,
-    right_color: list,
-    proportion
-) -> list:
+def get_color_mix(left_color: list, right_color: list, proportion) -> list:
     """
     Returns a color that is a mix between the two given colors.
     A given proportion of 0 would return the left color.
@@ -172,22 +157,17 @@ def get_color_mix(
     if array_length != len(right_color):
         return left_color
 
-    indices = range(0, array_length)
-    new_color = [int(interpolate(
-        left_color[index],
-        right_color[index],
-        proportion)) for index in indices]
-
-    return new_color
+    indices = range(array_length)
+    return [
+        int(interpolate(left_color[index], right_color[index], proportion))
+        for index in indices
+    ]
 
 
 def get_brightness_adjusted_color(
-    color_to_render: list,
-    brightness_adjustment: float
+    color_to_render: list, brightness_adjustment: float
 ) -> list:
-    if brightness_adjustment < 0.0:
-        brightness_adjustment = 0.0
-
+    brightness_adjustment = max(brightness_adjustment, 0.0)
     final_color = []
 
     for color in color_to_render:
@@ -203,7 +183,7 @@ def get_brightness_adjusted_color(
     return final_color
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import doctest
 
     print("Starting tests.")

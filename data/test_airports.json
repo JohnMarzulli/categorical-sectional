@@ -11,6 +11,22 @@
         },
         {
             "KLAX": { "neopixel": 3 }
-        }
+        },
+{"KCRW": {"neopixel": 4}},
+{"KHTS": {"neopixel": 5}},
+      {"KI43": {"neopixel": 6}},
+      {"KJRO": {"neopixel": 6}},
+   {"3I2": {"neopixel": 7}},
+{"KPKB": {"neopixel": 8}},
+{"KHLG": {"neopixel": 9}},
+{"KZZV": {"neopixel": 10}},
+{"KVTA": {"neopixel": 11}},
+{"KLHQ": {"neopixel": 12}},
+{"KCMH": {"neopixel": 13}},
+{"KOSU": {"neopixel": 14}},
+    {"I19": {"neopixel": 15}},
+{"KDAY": {"neopixel": 16}},
+{"KCVG": {"neopixel": 17}},
+{"KLEX": {"neopixel": 18}}
     ]
 }

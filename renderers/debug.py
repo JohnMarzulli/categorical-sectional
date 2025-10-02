@@ -19,10 +19,10 @@ class Renderer(object):
         super().__init__()
 
         self.pixel_count: int = pixel_count
-        self.pixels: list[tuple] = [(0, 0, 0)] * pixel_count
+        self.pixels: list[list[int]] = [[0, 0, 0]] * pixel_count
         self.__is_dirty__: bool = False
 
-    def set_all(self, color: tuple):
+    def set_all(self, color: list[int]):
         """
         Sets all of the LEDs to the same color.
 
@@ -32,7 +32,7 @@ class Renderer(object):
         self.pixels = [color] * self.pixel_count
         self.show()
 
-    def set_led(self, pixel_index: int, color: tuple):
+    def set_led(self, pixel_index: int, color: list[int]):
         """
         Sets the given airport to the given color
 
@@ -49,7 +49,7 @@ class Renderer(object):
         self.pixels[pixel_index] = color
         self.__is_dirty__ = True
 
-    def set_leds(self, pixel_list: list, color: tuple):
+    def set_leds(self, pixel_list: list, color: list[int]):
         """
         Sets all of the pixels in the given list to the given color.
 
@@ -64,4 +64,4 @@ class Renderer(object):
         self.__is_dirty__ = False
 
     def clear(self):
-        self.set_all((0, 0, 0))
+        self.set_all([0, 0, 0])

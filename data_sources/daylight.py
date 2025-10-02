@@ -2,7 +2,6 @@ from datetime import datetime, timedelta, timezone
 
 import requests
 
-
 if __name__ == "__main__":
     import os
     import sys
@@ -11,12 +10,12 @@ if __name__ == "__main__":
     # This is only needed if running the unit tests directly
     sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from data_sources.daylight_hours import DaylightHours
-import data_sources.time
-from lib.cache import Cache, CacheResult
-from lib.colors import clamp
-from lib.safe_logging import safe_log_warning
 import data_sources.airports
+import lib.time
+from lib.cache import Cache, CacheResult
+from lib.interpolation import clamp
+from lib.safe_logging import safe_log_warning
+from meteorology.types.daylight_hours import DaylightHours
 
 __daylight_cache__: Cache = Cache(4 * 60)
 __rest_session__ = requests.Session()
@@ -24,7 +23,7 @@ DEFAULT_READ_SECONDS = 15
 
 
 def __get_datetime_hour__(hour: float) -> datetime:
-    now = data_sources.time.now_utc()
+    now = lib.time.now_utc()
     # Set today's time to the specified hour (supports fractional hours)
     start_of_day = now.replace(hour=0, minute=0, second=0, microsecond=0)
     now = start_of_day + timedelta(hours=hour)
@@ -34,7 +33,7 @@ def __get_datetime_hour__(hour: float) -> datetime:
 
 def __get_civil_twilight_from_source__(
     station_code: str,
-    current_utc_time: datetime = data_sources.time.now_utc(),
+    current_utc_time: datetime = lib.time.now_utc(),
 ) -> DaylightHours:
     # Using "formatted=0" returns the times in a full datetime format
     # Otherwise you need to do some silly math to figure out the date
@@ -69,12 +68,12 @@ def __get_civil_twilight_from_source__(
         and json_result["status"] == "OK"
         and "results" in json_result
     ):
-        sunrise = data_sources.time.get_utc_datetime(json_result["results"]["sunrise"])
-        sunset = data_sources.time.get_utc_datetime(json_result["results"]["sunset"])
-        sunrise_start = data_sources.time.get_utc_datetime(
+        sunrise = lib.time.get_utc_datetime(json_result["results"]["sunrise"])
+        sunset = lib.time.get_utc_datetime(json_result["results"]["sunset"])
+        sunrise_start = lib.time.get_utc_datetime(
             json_result["results"]["civil_twilight_begin"]
         )
-        sunset_end = data_sources.time.get_utc_datetime(
+        sunset_end = lib.time.get_utc_datetime(
             json_result["results"]["civil_twilight_end"]
         )
         sunrise_length = sunrise - sunrise_start
@@ -96,7 +95,7 @@ def __get_civil_twilight_from_source__(
 
 def get_civil_twilight(
     station_icao_code: str,
-    current_utc_time: datetime = data_sources.time.now_utc(),
+    current_utc_time: datetime = lib.time.now_utc(),
 ) -> DaylightHours:
     """
     Gets the civil twilight time for the given airport
@@ -137,7 +136,7 @@ def get_civil_twilight(
 def is_daylight(
     station_icao_code: str,
     light_times: DaylightHours,
-    current_utc_time: datetime = data_sources.time.now_utc(),
+    current_utc_time: datetime = lib.time.now_utc(),
 ) -> bool:
     """
     Returns TRUE if the airport is currently in daylight
@@ -173,7 +172,7 @@ def is_daylight(
 def is_night(
     station_icao_code: str,
     light_times: DaylightHours,
-    current_utc_time: datetime = data_sources.time.now_utc(),
+    current_utc_time: datetime = lib.time.now_utc(),
 ) -> bool:
     """
     Returns TRUE if the airport is currently in night
@@ -238,7 +237,7 @@ def get_proportion_between_times(
     return time_in / total_delta
 
 
-def get_twilight_transition(airport_icao_code, current_utc_time=None):
+def get_twilight_transition(airport_icao_code, current_utc_time=None) -> list[float]:
     """
     Returns the mix of dark & color fade for twilight transitions.
 
@@ -259,10 +258,10 @@ def get_twilight_transition(airport_icao_code, current_utc_time=None):
     light_times = get_civil_twilight(airport_icao_code, current_utc_time)
 
     if is_daylight(airport_icao_code, light_times, current_utc_time):
-        return 0.0, 1.0
+        return [0.0, 1.0]
 
     if is_night(airport_icao_code, light_times, current_utc_time):
-        return 0.0, 0.0
+        return [0.0, 0.0]
 
     proportion_off_to_night = 0.0
     proportion_night_to_color = 0.0
@@ -291,7 +290,7 @@ def get_twilight_transition(airport_icao_code, current_utc_time=None):
     proportion_off_to_night = clamp(-1.0, proportion_off_to_night, 1.0)
     proportion_night_to_color = clamp(-1.0, proportion_night_to_color, 1.0)
 
-    return proportion_off_to_night, proportion_night_to_color
+    return [proportion_off_to_night, proportion_night_to_color]
 
 
 if __name__ == "__main__":

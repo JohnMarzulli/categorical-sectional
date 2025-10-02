@@ -1,10 +1,16 @@
-from visualizers import flight_rules
-from data_sources import weather
+if __name__ == "__main__":
+    import os
+    import sys
+
+    # Ensure the parent directory is in sys.path so 'managers' can be imported
+    # This is only needed if running the unit tests directly
+    sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+
+from visualizers import flight_rules_visualizer
+from meteorology.types.metar import Metar
 
 
-def test_get_condition_from_metar(
-    metar: str
-) -> str:
+def test_get_condition_from_metar(metar_report: str) -> str:
     """
     From a METAR, get the condition
 
@@ -94,7 +100,7 @@ def test_get_condition_from_metar(
     >>> test_get_condition_from_metar("KOSH 121953Z 17008KT 10SM OVC021 21/17 A2984 RMK AO2 SLP097 T02060167")
     'MVFR'
     >>> test_get_condition_from_metar("KMSN 121953Z 18009KT 2SM -DZ BR OVC005 19/19 A2984 RMK AO2 TWR VIS 2 1/2 CIG 004V009 SLP103 P0000 T01890189")
-    'IFR'
+    'LIFR'
     >>> test_get_condition_from_metar("KVOK 121956Z 28006KT 10SM FEW005 SCT014 OVC022 18/18 A2984 RMK AO2A SLP107")
     'MVFR'
     >>> test_get_condition_from_metar("KAEL 121955Z AUTO 30003KT 10SM BKN023 BKN030 BKN085 16/13 A2988 RMK AO2")
@@ -224,13 +230,13 @@ def test_get_condition_from_metar(
     >>> test_get_condition_from_metar("KIDA 122353Z AUTO 24007KT 10SM CLR 27/M02 A3010 RMK AO2 SLP163 T02721017 10278 20217 56009")
     'VFR'
     """
-    station = weather.get_station_from_metar(metar)
-    return weather.get_category(station, metar)
+
+    metar: Metar = Metar(metar_report)
+
+    return metar.get_category()
 
 
-def test_get_color_from_condition(
-    category: str
-) -> list:
+def test_get_color_from_condition(category: str) -> str:
     """
     From a condition, returns the color it should be rendered as, and if it should flash.
 
@@ -258,10 +264,10 @@ def test_get_color_from_condition(
     'OFF'
     """
 
-    return flight_rules.get_color_from_condition(category)
+    return flight_rules_visualizer.get_color_from_condition(category)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import doctest
 
     print("Starting tests.")

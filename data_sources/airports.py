@@ -1,7 +1,7 @@
 import csv
 import os
 
-from data_sources.location import Location
+from meteorology.types.location import Location
 
 __default_working_directory__: str = os.path.dirname(os.path.abspath(__file__))
 

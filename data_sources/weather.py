@@ -22,9 +22,9 @@ if __name__ == "__main__":
     # This is only needed if running the unit tests directly
     sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from lib.safe_logging import safe_log, safe_log_warning
 from lib.cache import Cache, CacheResult
-import data_sources.metars
+from lib.safe_logging import safe_log, safe_log_warning
+from meteorology.types.metar import Metar
 
 __rest_session__ = requests.Session()
 __metar_report_cache__: Cache = Cache()
@@ -35,170 +35,7 @@ DEFAULT_METAR_LIFESPAN_MINUTES = 60
 DEFAULT_METAR_INVALIDATE_MINUTES = DEFAULT_METAR_LIFESPAN_MINUTES * 1.5
 
 
-def extract_metar_from_html_line(raw_metar_line):
-    """
-    Takes a raw line of HTML from the METAR report and extracts the METAR from it.
-    NOTE: A "$" at the end of the line indicates a "maintenance check" and is part of the report.
-
-    Arguments:
-        metar {string} -- The raw HTML line that may include BReaks and other HTML elements.
-
-    Returns:
-        string -- The extracted METAR.
-    """
-
-    metar = re.sub("<[^<]+?>", "", raw_metar_line)
-    metar = metar.replace("\n", "")
-    metar = metar.strip()
-
-    return metar
-
-
-def get_metar_from_report_line(metar_report_line_from_webpage):
-    """
-    Extracts the METAR from the line in the webpage and sets
-    the data into the cache.
-
-    Returns None if an error occurs or nothing can be found.
-
-    Arguments:
-        metar_report_line_from_webpage {string} -- The line that contains the METAR from the web report.
-
-    Returns:
-        string,string -- The identifier and extracted METAR (if any), or None
-    """
-
-    identifier = None
-    metar = None
-
-    try:
-        metar = extract_metar_from_html_line(metar_report_line_from_webpage)
-        metar = metar.replace("METAR ", "")
-        metar = metar.replace("SPECI ", "")
-
-        if len(metar) < 1:
-            return (None, None)
-
-        identifier = metar.split(" ")[0]
-        __metar_report_cache__.set(identifier, metar)
-    except Exception:
-        metar = None
-
-    return (identifier, metar)
-
-
-def __is_station_ok_to_call__(icao_code: str) -> bool:
-    """
-    Tells us if a station is OK to make a call to.
-    This rate limits calls when a METAR is expired
-    but the station has not yet updated.
-
-    Args:
-        icao_code (str): The station identifier code.
-
-    Returns:
-        bool: True if that station is OK to call.
-    """
-
-    if icao_code not in __station_last_called__:
-        return True
-
-    try:
-        delta_time = datetime.now(timezone.utc) - __station_last_called__[icao_code]
-        time_since_last_call = (delta_time.total_seconds()) / 60.0
-
-        return time_since_last_call > 1.0
-    except Exception:
-        return True
-
-
-def get_metars(airport_icao_codes: list) -> dict[str, str]:
-    """
-    Returns the (RAW) METAR for the given station
-
-    Arguments:
-        airport_icao_code {string} -- The list of ICAO code for the weather station.
-
-    Returns:
-        dictionary - A dictionary (keyed by airport code) of the RAW metars.
-        Returns INVALID as the value for the key if an error occurs.
-    """
-
-    metars = {}
-
-    # For the airports and identifiers that we were not able to get
-    # a result for, see if we can fill in the results.
-    for identifier in airport_icao_codes:
-        # If we did not get a report, but do
-        # still have an old report, then use the old
-        # report.
-        result: CacheResult = __metar_report_cache__.get(identifier)
-        cache_valid: bool = result.is_valid
-        report = result.value
-
-        is_ready_to_call = __is_station_ok_to_call__(identifier)
-
-        if cache_valid and report is not None and not is_ready_to_call:
-            # Falling back to cached METAR for rate limiting
-            metars[identifier] = report
-        else:
-            try:
-                new_metars = get_metar_reports_from_web([identifier])
-                new_report = new_metars[identifier]
-
-                safe_log(f"New WX for {identifier}={new_report}")
-
-                if new_report is None or len(new_report) < 1:
-                    continue
-
-                __metar_report_cache__.set(identifier, new_report)
-                metars[identifier] = new_report
-
-                safe_log(f"{identifier}:{new_report}")
-
-            except Exception as e:
-                safe_log_warning(f"get_metars, being set to INVALID EX:{e}")
-
-                metars[identifier] = data_sources.metars.INVALID
-
-    return metars
-
-
-def get_metar_reports_from_web(airport_icao_codes: list):
-    """
-    Calls to the web an attempts to gets the METARs for the requested station list.
-
-    Arguments:
-        airport_icao_code {string[]} -- Array of stations to get METARs for.
-
-    Returns:
-        dictionary -- Returns a map of METARs keyed by the station code.
-    """
-
-    metars = {}
-    metar_list: str = "%,".join(airport_icao_codes)
-    request_url = f"https://aviationweather.gov/api/data/metar?ids={metar_list}&hours=0&order=id%2C-obs&sep=true"
-    stream = urllib.request.urlopen(request_url, timeout=2)
-
-    stream_lines = stream.readlines()
-    stream.close()
-    for line in stream_lines:
-        line_as_string = line.decode("utf-8")
-
-        identifier, metar = get_metar_from_report_line(line_as_string)
-
-        if identifier is None:
-            continue
-
-        # If we get a good report, go ahead and shove it into the results.
-        if metar is not None:
-            metars[identifier] = metar
-            __station_last_called__[identifier] = datetime.now(timezone.utc)
-
-    return metars
-
-
-def get_metar(airport_icao_code: str, use_cache: bool = True) -> str | None:
+def get_metar(airport_icao_code: str, use_cache: bool = True) -> Metar | None:
     """
     Returns the (RAW) METAR for the given station
 
@@ -214,14 +51,12 @@ def get_metar(airport_icao_code: str, use_cache: bool = True) -> str | None:
 
     result: CacheResult = __metar_report_cache__.get(airport_icao_code)
     is_cache_valid: bool = result.is_valid
-    cached_metar: str = result.value  # type: ignore
+    cached_metar: Metar = result.value  # type: ignore
 
     # Make sure that we used the most recent reports we can.
     # Metars are normally updated hourly.
-    if is_cache_valid and cached_metar != data_sources.metars.INVALID:
-        metar_age = (
-            data_sources.metars.get_metar_age(cached_metar).total_seconds() / 60.0
-        )
+    if is_cache_valid and cached_metar is not None:
+        metar_age = cached_metar.get_age().total_seconds() / 60.0
 
         if use_cache and metar_age < DEFAULT_METAR_LIFESPAN_MINUTES:
             return cached_metar
@@ -252,31 +87,193 @@ def get_metar(airport_icao_code: str, use_cache: bool = True) -> str | None:
         return None
 
 
+def get_metars(airport_icao_codes: list[str]) -> dict[str, Metar]:
+    """
+    Returns the (RAW) METAR for the given station
+
+    Arguments:
+        airport_icao_code {string} -- The list of ICAO code for the weather station.
+
+    Returns:
+        dictionary - A dictionary (keyed by airport code) of the RAW metars.
+        Returns INVALID as the value for the key if an error occurs.
+    """
+
+    metars: dict[str, Metar] = {}
+
+    # For the airports and identifiers that we were not able to get
+    # a result for, see if we can fill in the results.
+    for identifier in airport_icao_codes:
+        # If we did not get a report, but do
+        # still have an old report, then use the old
+        # report.
+        result: CacheResult = __metar_report_cache__.get(identifier)
+        cache_valid: bool = result.is_valid
+        report = result.value
+
+        is_ready_to_call = __is_station_ok_to_call__(identifier)
+
+        if cache_valid and report is not None and not is_ready_to_call:
+            # Falling back to cached METAR for rate limiting
+            metars[identifier] = report
+        else:
+            try:
+                new_metars = __get_metar_reports_from_web__([identifier])
+                new_report = new_metars[identifier]
+
+                safe_log(f"New WX for {identifier}={new_report.metar}")
+
+                if not new_report.is_valid():
+                    continue
+
+                __metar_report_cache__.set(identifier, new_report)
+                metars[identifier] = new_report
+
+                safe_log(f"{identifier}:{new_report}")
+
+            except Exception as e:
+                safe_log_warning(f"get_metars, being set to INVALID EX:{e}")
+
+                if identifier in metars:
+                    metars.pop(identifier)
+
+    return metars
+
+
+def __extract_metar_from_html_line__(raw_metar_line):
+    """
+    Takes a raw line of HTML from the METAR report and extracts the METAR from it.
+    NOTE: A "$" at the end of the line indicates a "maintenance check" and is part of the report.
+
+    Arguments:
+        metar {string} -- The raw HTML line that may include BReaks and other HTML elements.
+
+    Returns:
+        string -- The extracted METAR.
+    """
+
+    metar = re.sub("<[^<]+?>", "", raw_metar_line)
+    metar = metar.replace("\n", "")
+    metar = metar.strip()
+
+    return metar
+
+
+def __get_metar_from_report_line__(metar_report_line_from_webpage):
+    """
+    Extracts the METAR from the line in the webpage and sets
+    the data into the cache.
+
+    Returns None if an error occurs or nothing can be found.
+
+    Arguments:
+        metar_report_line_from_webpage {string} -- The line that contains the METAR from the web report.
+
+    Returns:
+        string,string -- The identifier and extracted METAR (if any), or None
+    """
+
+    identifier = None
+    metar_report = None
+
+    try:
+        metar_report = __extract_metar_from_html_line__(metar_report_line_from_webpage)
+        metar_report = metar_report.replace("METAR ", "")
+        metar_report = metar_report.replace("SPECI ", "")
+
+        if len(metar_report) < 1:
+            return (None, None)
+
+        identifier = metar_report.split(" ")[0]
+        __metar_report_cache__.set(identifier, metar_report)
+    except Exception:
+        metar_report = None
+
+    return (identifier, metar_report)
+
+
+def __is_station_ok_to_call__(icao_code: str) -> bool:
+    """
+    Tells us if a station is OK to make a call to.
+    This rate limits calls when a METAR is expired
+    but the station has not yet updated.
+
+    Args:
+        icao_code (str): The station identifier code.
+
+    Returns:
+        bool: True if that station is OK to call.
+    """
+
+    if icao_code not in __station_last_called__:
+        return True
+
+    try:
+        delta_time = datetime.now(timezone.utc) - __station_last_called__[icao_code]
+        time_since_last_call = (delta_time.total_seconds()) / 60.0
+
+        return time_since_last_call > 1.0
+    except Exception:
+        return True
+
+
+def __get_metar_reports_from_web__(airport_icao_codes: list) -> dict[str, Metar]:
+    """
+    Calls to the web an attempts to gets the METARs for the requested station list.
+
+    Arguments:
+        airport_icao_code {string[]} -- Array of stations to get METARs for.
+
+    Returns:
+        dictionary -- Returns a map of METARs keyed by the station code.
+    """
+
+    metars = {}
+    metar_list: str = "%,".join(airport_icao_codes)
+    request_url = f"https://aviationweather.gov/api/data/metar?ids={metar_list}&hours=0&order=id%2C-obs&sep=true"
+    stream = urllib.request.urlopen(request_url, timeout=2)
+
+    stream_lines = stream.readlines()
+    stream.close()
+    for line in stream_lines:
+        line_as_string = line.decode("utf-8")
+
+        identifier, metar_report = __get_metar_from_report_line__(line_as_string)
+
+        if identifier is None:
+            continue
+
+        # If we get a good report, go ahead and shove it into the results.
+        if metar_report is not None:
+            metars[identifier] = Metar(metar_report)
+            __station_last_called__[identifier] = datetime.now(timezone.utc)
+
+    return metars
+
+
 if __name__ == "__main__":
     import data_sources.airports
 
     print("Starting self-test")
 
-    airports_to_test = ["KW29", "KMSN", "KAWO", "KOSH", "KBVS", "KDOESNTEXIST"]
+    airports_to_test = ["KW29", "KMSN", "KAWO", "KOSH", "KBVS", "KDOESNTEXIST", "KVOK"]
     starting_date_time = datetime.now(timezone.utc)
     utc_offset = timezone.utcoffset(timezone.utc, datetime.now())
 
-    data_sources.metars.get_category(
-        "KVOK",
-        "KVOK 251453Z 34004KT 10SM SCT008 OVC019 21/21 A2988 RMK AO2A SCT V BKN SLP119 53012",
-    )
-
     metars = get_metars(airports_to_test)
-    kawo_metar = get_metar("KAWO", use_cache=False)
     joined_metar_report = ",".join(metars)
 
     print(f"BATCH={joined_metar_report}")
-    print(f"KAWO={kawo_metar}")
 
     for identifier in airports_to_test:
         faa_csv_identifer = data_sources.airports.get_faa_csv_identifier(identifier)
 
-        metar: str | None = get_metar(identifier)
-        age = data_sources.metars.get_metar_age(metar)
-        flight_category = data_sources.metars.get_category(identifier, metar)
+        metar: Metar | None = get_metar(identifier)
+
+        if metar is None:
+            print(f"ERROR: unable to get metar for '{identifier}'")
+            continue
+
+        age = metar.get_age()
+        flight_category = metar.get_category()
         print(f"{identifier}: {flight_category}: {metar}")

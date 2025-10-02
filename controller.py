@@ -1,7 +1,7 @@
 # Live Sectional Map controller
 # Dylan Rush 2017
 # Additional modifications:
-#   2018-2020, John Marzulli
+#   2018-2025, John Marzulli
 # dylanhrush.com
 # Uses RPi.GPIO library: https://sourceforge.net/p/raspberry-gpio-python/wiki/BasicUsage/
 # Free for personal use. Prohibited for commercial without consent
@@ -42,6 +42,7 @@ thread_lock_object = threading.Lock()
 
 if not local_debug.is_debug():
     import RPi.GPIO as GPIO
+
     try:
         GPIO.setmode(GPIO.BOARD)
     except Exception:
@@ -55,18 +56,7 @@ rgb_colors = lib.colors.get_colors()
 renderer = renderer.get_renderer()
 
 
-def update_weather_for_all_stations():
-    """
-    Updates the weather for all of the stations.
-    This does not update the conditions or category.
-    """
-
-    weather.get_metars(stations.keys())
-
-
-def __get_dimmed_color__(
-    starting_color: list
-) -> list:
+def __get_dimmed_color__(starting_color: list) -> list:
     """
     Given a starting color, get the version that is dimmed.
 
@@ -91,9 +81,7 @@ def __get_dimmed_color__(
     return dimmed_color
 
 
-def all_stations(
-    color: list
-):
+def all_stations(color: list):
     """
     Sets all of the airports to the given color
 
@@ -102,21 +90,16 @@ def all_stations(
         of the color to set for ALL airports.
     """
 
-    [renderer.set_leds(stations[station], color)
-        for station in stations]
+    [renderer.set_leds(stations[station], color) for station in stations]
 
     renderer.show()
 
 
-def __all_leds_to_color__(
-    color: list
-):
+def __all_leds_to_color__(color: list):
     renderer.set_all(color)
 
 
-def get_station_by_led(
-    index: int
-) -> str:
+def get_station_by_led(index: int) -> str:
     """
     Given an LED, find the station it is representing.
 
@@ -126,11 +109,14 @@ def get_station_by_led(
     Returns:
         str: The identifier of the station.
     """
-    for station_identifier in stations.keys():
-        if index in stations[station_identifier]:
-            return station_identifier
-
-    return "UNK"
+    return next(
+        (
+            station_identifier
+            for station_identifier in stations.keys()
+            if index in stations[station_identifier]
+        ),
+        "UNK",
+    )
 
 
 def render_thread():
@@ -145,8 +131,8 @@ def render_thread():
     debug_pixels_timer = None
 
     loaded_visualizers = visualizers.VisualizerManager.initialize_visualizers(
-        renderer,
-        stations)
+        renderer, stations
+    )
     last_visualizer = 0
 
     while True:
@@ -155,8 +141,7 @@ def render_thread():
 
             tic = time.perf_counter()
 
-            visualizer_index = configuration.get_visualizer_index(
-                loaded_visualizers)
+            visualizer_index = configuration.get_visualizer_index(loaded_visualizers)
 
             if visualizer_index != last_visualizer:
                 renderer.clear()
@@ -166,18 +151,18 @@ def render_thread():
 
             show_debug_pixels = (
                 debug_pixels_timer is None
-                or (
-                    datetime.now(timezone.utc) - debug_pixels_timer
-                ).total_seconds()
+                or (datetime.now(timezone.utc) - debug_pixels_timer).total_seconds()
                 > 60.0
             )
 
             if show_debug_pixels:
                 for index in range(renderer.pixel_count):
                     station = get_station_by_led(index)
-                    safe_logging.safe_log(f'[{station}/{index}]={renderer.pixels[index]}')
+                    safe_logging.safe_log(
+                        f"[{station}/{index}]={renderer.pixels[index]}"
+                    )
 
-                debug_pixels_timer = datetime.utcnow()
+                debug_pixels_timer = datetime.now(timezone.utc)
 
             toc = time.perf_counter()
         except KeyboardInterrupt:
@@ -212,7 +197,7 @@ def __get_test_cycle_colors__() -> list:
         lib.colors.YELLOW,
         lib.colors.WHITE,
         lib.colors.GRAY,
-        lib.colors.DARK_YELLOW
+        lib.colors.DARK_YELLOW,
     ]
 
     colors_to_init = []
@@ -240,7 +225,7 @@ def __test_all_leds__():
         time.sleep(0.5)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Start loading the METARs in the background
     # while going through the self-test
     safe_logging.safe_log("Initialize weather for all airports")
@@ -253,12 +238,7 @@ if __name__ == '__main__':
 
     all_stations(rgb_colors[lib.colors.OFF])
 
-    RecurringTask(
-        "rest_host",
-        0.1,
-        web_server.run,
-        logger.LOGGER,
-        True)
+    RecurringTask("rest_host", 0.1, web_server.run, logger.LOGGER, True)
 
     wait_for_all_stations()
 

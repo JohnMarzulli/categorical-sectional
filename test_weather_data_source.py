@@ -26,7 +26,7 @@ def test_time_interpolation(
     return round(get_proportion_between_times(start_time, current_time, end_time), 3)
 
 
-def test_get_station_from_metar(metar_report: str) -> str | None:
+def test_get_station_from_metar(metar_report: str) -> str:
     """
     >>> test_get_station_from_metar("")
     'INVALID'
@@ -58,7 +58,7 @@ def test_get_station_from_metar(metar_report: str) -> str | None:
     return metar.get_station()
 
 
-def test_get_metar_timestamp(metar_report: str) -> datetime | None:
+def test_get_metar_timestamp(metar_report: str) -> datetime:
     """
     >>> test_get_metar_timestamp("KBVS 121955Z AUTO 00000KT 2SM BR CLR 17/15 A3001 RMK A01")
     datetime.datetime(2025, 10, 12, 19, 55, tzinfo=datetime.timezone.utc)
@@ -77,7 +77,11 @@ def test_get_metar_timestamp(metar_report: str) -> datetime | None:
     """
     metar: Metar = Metar(metar_report)
 
-    return metar.get_timestamp() if metar is not None else None
+    return (
+        metar.get_timestamp()
+        if metar is not None
+        else datetime.min.replace(tzinfo=timezone.utc)
+    )
 
 
 if __name__ == "__main__":

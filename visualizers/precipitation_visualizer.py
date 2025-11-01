@@ -14,7 +14,7 @@ from visualizers.blinking_visualizer import BlinkingVisualizer
 
 def __get_color_by_precipitation__(
     precipitation: str, pulse_interval: float = 2.0
-) -> Tuple[list, bool]:
+) -> Tuple:
     """
     Given a precipitation category, return a color
     to show on the map.
@@ -121,7 +121,7 @@ class PrecipitationVisualizer(BlinkingVisualizer):
             station {string} -- The identifier of the station.
         """
 
-        metar: Metar | None = weather.get_metar(station)
+        metar: Metar = weather.get_metar(station)
 
         if metar is None:
             return

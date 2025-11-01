@@ -58,7 +58,7 @@ for station_id in airport_render_config:
         )
 
     # Validate that the station can have weather fetched
-    metar: Metar | None = weather.get_metar(station_id)
+    metar: Metar = weather.get_metar(station_id)
 
     if metar is None or not metar.is_valid():
         stations_unable_to_fetch_weather.append(station_id)
@@ -67,7 +67,7 @@ for station_id in airport_render_config:
         )
 
     # Validate that the station can have Sunrise/Sunset fetched
-    day_night_info: DaylightHours | None = get_civil_twilight(station_id)
+    day_night_info: DaylightHours = get_civil_twilight(station_id)
 
     if day_night_info is None:
         terminal_error(f"Unable to fetch day/night info for {station_id}/{led_indices}")

@@ -83,7 +83,7 @@ class TemperatureVisualizer(BlinkingVisualizer):
             airport {string} -- The identifier of the station.
         """
 
-        metar: Metar | None = weather.get_metar(station)
+        metar: Metar = weather.get_metar(station)
         if metar is None:
             return
 

@@ -24,7 +24,7 @@ ORANGE = "ORANGE"
 OFF = "OFF"
 
 
-def get_colors() -> dict[str, list]:
+def get_colors() -> dict:
     """
     Returns the RGB colors based on the config.
     """

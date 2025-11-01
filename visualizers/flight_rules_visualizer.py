@@ -98,7 +98,7 @@ def should_station_flash(metar: Metar) -> bool:
     return is_old and configuration.get_blink_station_if_old_data()
 
 
-def get_airport_condition(airport: str) -> tuple[str, bool]:
+def get_airport_condition(airport: str) -> tuple:
     """
     Sets the given airport to have the given flight rules category.
 
@@ -111,7 +111,7 @@ def get_airport_condition(airport: str) -> tuple[str, bool]:
     """
 
     try:
-        metar: Metar | None = weather.get_metar(airport)
+        metar: Metar = weather.get_metar(airport)
         category = (
             meteorology.types.classifications.INVALID
             if metar is None
@@ -166,7 +166,7 @@ class FlightRulesVisualizer(BlinkingVisualizer):
         if blink and is_blink:
             color_by_category = AVAILABLE_COLORS[colors_lib.OFF]
 
-        color_to_render: list[int] = self.__get_brightness_adjusted_color__(
+        color_to_render: list = self.__get_brightness_adjusted_color__(
             station, color_by_category
         )
 

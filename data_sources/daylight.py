@@ -237,7 +237,7 @@ def get_proportion_between_times(
     return time_in / total_delta
 
 
-def get_twilight_transition(airport_icao_code, current_utc_time=None) -> list[float]:
+def get_twilight_transition(airport_icao_code, current_utc_time=None) -> list:
     """
     Returns the mix of dark & color fade for twilight transitions.
 

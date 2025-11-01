@@ -37,7 +37,7 @@ class Metar:
             and self.get_station() is not None
         )
 
-    def get_station(self) -> str | None:
+    def get_station(self) -> str:
         """
         Given a METAR, extract the station identifier.
 
@@ -48,22 +48,22 @@ class Metar:
             str: The name of the station if extracted and valid, otherwise None
         """
         if self.metar is None:
-            return None
+            return ""
 
         if len(self.metar) < 3:
-            return None
+            return ""
 
         try:
             tokens = self.metar.split(" ")
 
             if tokens is None or not tokens:
-                return None
+                return ""
 
             station = tokens[0]
 
-            return None if len(station) < 2 or len(station) > 8 else station
+            return "" if len(station) < 2 or len(station) > 8 else station
         except Exception:
-            return None
+            return ""
 
     def get_timestamp(self, current_time: datetime = lib.time.now_utc()) -> datetime:
         try:
@@ -183,7 +183,7 @@ class Metar:
             )
         return meteorology.types.classifications.VFR
 
-    def get_main_metar_components(self) -> list[str]:
+    def get_main_metar_components(self) -> list:
         return [] if self.metar is None else self.metar.split("RMK")[0].split(" ")[1:]
 
     def get_ceiling(self) -> int:
@@ -268,7 +268,7 @@ class Metar:
                     return float(component.split("A")[1]) / 100.0
         return 0.0
 
-    def get_precipitation(self) -> str | None:
+    def get_precipitation(self) -> str:
         components = self.get_main_metar_components()
 
         for component in components:
@@ -292,7 +292,7 @@ class Metar:
             elif "DZ" in component:
                 return meteorology.types.classifications.DRIZZLE
 
-        return None
+        return ""
 
     def get_ceiling_category(self) -> str:
         """

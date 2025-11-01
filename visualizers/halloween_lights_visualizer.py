@@ -15,7 +15,7 @@ class HalloweenLightsVisualizer(Visualizer):
         self.__colors__ = [off, off, orange, green, purple, off, off]
         # The lower the adjustment, the slower the lights. 0.5 is half the speed.
         # The higher the adjustment, the faster the lights. 2 is twice the speed.
-        self.__speed_adjustment__ = 8
+        self.__speed_adjustment__ = 2
         self.__incremental_index__: float = 0.0
         super().__init__(renderer, stations)
 

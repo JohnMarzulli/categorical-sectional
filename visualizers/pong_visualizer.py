@@ -43,4 +43,8 @@ class PongVisualizer(Visualizer):
             except Exception as ex:
                 print(f'While attempting to set LED:{i} while index:{index}, __incremental_index__:{self.__incremental_index__}, and __direction__:{self.__direction__} EX={ex}')
 
+        self.__renderer__.set_led(index - self.__direction__, colors_lib.get_brightness_adjusted_color(self.__ball_color__, brightness_adjustment / 2))
+        self.__renderer__.set_led(index - (2 * self.__direction__), colors_lib.get_brightness_adjusted_color(self.__ball_color__, brightness_adjustment / 4))
+        self.__renderer__.set_led(index - (3 * self.__direction__), colors_lib.get_brightness_adjusted_color(self.__ball_color__, brightness_adjustment / 8))
+
         self.__renderer__.show()

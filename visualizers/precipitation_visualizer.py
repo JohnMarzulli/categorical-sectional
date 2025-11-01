@@ -14,7 +14,7 @@ from visualizers.blinking_visualizer import BlinkingVisualizer
 
 def __get_color_by_precipitation__(
     precipitation: str, pulse_interval: float = 2.0
-) -> Tuple[list, bool]:
+) -> Tuple:
     """
     Given a precipitation category, return a color
     to show on the map.

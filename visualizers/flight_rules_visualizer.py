@@ -98,7 +98,7 @@ def should_station_flash(metar: Metar) -> bool:
     return is_old and configuration.get_blink_station_if_old_data()
 
 
-def get_airport_condition(airport: str) -> tuple[str, bool]:
+def get_airport_condition(airport: str) -> tuple:
     """
     Sets the given airport to have the given flight rules category.
 

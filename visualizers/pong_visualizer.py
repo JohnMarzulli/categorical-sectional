@@ -1,9 +1,9 @@
-from datetime import datetime, timezone
-
 from configuration import configuration
 from lib import colors as colors_lib
 from renderers.debug import Renderer
 from visualizers.visualizer import Visualizer
+
+from visualizers.rainbow_visualizer import wheel
 
 
 class PongVisualizer(Visualizer):
@@ -22,7 +22,6 @@ class PongVisualizer(Visualizer):
         elapsed_seconds:float = time_slice * self.__speed_adjustment__
         pixel_count = configuration.CONFIG[configuration.PIXEL_COUNT_KEY]
         brightness_adjustment = configuration.get_brightness_proportion()
-        brightness_adjusted_color = colors_lib.get_brightness_adjusted_color(self.__ball_color__, brightness_adjustment)
 
         self.__incremental_index__ += (self.__direction__ * elapsed_seconds)
         index = int(self.__incremental_index__)
@@ -36,16 +35,18 @@ class PongVisualizer(Visualizer):
             self.__incremental_index__ = 0
             self.__direction__ = 1
 
-        for i in range(pixel_count):
-            try:
-                color = brightness_adjusted_color if i == index else self.__off__
+        self.__renderer__.set_all(self.__off__)
 
-                self.__renderer__.set_led(i, color)
-            except Exception as ex:
-                print(f'While attempting to set LED:{i} while index:{index}, __incremental_index__:{self.__incremental_index__}, and __direction__:{self.__direction__} EX={ex}')
+        color = wheel(index & 255)
+        brightness_adjusted_color = colors_lib.get_brightness_adjusted_color(color, brightness_adjustment)
+        self.__renderer__.set_led(index, brightness_adjusted_color)
 
-        self.__renderer__.set_led(index - self.__direction__, colors_lib.get_brightness_adjusted_color(self.__trail_color__, brightness_adjustment / 2))
-        self.__renderer__.set_led(index - (2 * self.__direction__), colors_lib.get_brightness_adjusted_color(self.__trail_color__, brightness_adjustment / 4))
-        self.__renderer__.set_led(index - (3 * self.__direction__), colors_lib.get_brightness_adjusted_color(self.__trail_color__, brightness_adjustment / 8))
+        trail_brightness = brightness_adjustment
+        
+        for trail_index in range(1, 3):
+            true_trail_index = index - (trail_index * self.__direction__)
+            color = wheel(true_trail_index & 255)
+            trail_brightness /= 2.0
+            self.__renderer__.set_led(true_trail_index, colors_lib.get_brightness_adjusted_color(self.__trail_color__, trail_brightness))
 
         self.__renderer__.show()

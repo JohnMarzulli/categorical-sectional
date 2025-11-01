@@ -3,7 +3,12 @@
 
 from configuration import configuration
 from data_sources import weather
+from data_sources.airports import get_faa_csv_identifier
+from data_sources.daylight import get_civil_twilight
 from lib import safe_logging
+from meteorology.types.classifications import INVALID
+from meteorology.types.daylight_hours import DaylightHours
+from meteorology.types.metar import Metar
 
 
 def terminal_error(error_message):
@@ -37,7 +42,7 @@ for station_id in airport_render_config:
 
     # Validate that the station is in the CSV file
     try:
-        data_file_icao_code = weather.get_faa_csv_identifier(station_id)
+        data_file_icao_code = get_faa_csv_identifier(station_id)
     except Exception as e:
         terminal_error(
             f"Unable to fetch the station {station_id} from the CSV data file. Please check that the station is in the CSV file. Error={e}"
@@ -46,31 +51,26 @@ for station_id in airport_render_config:
     if (
         data_file_icao_code is None
         or data_file_icao_code == ""
-        or weather.INVALID in data_file_icao_code
+        or INVALID in data_file_icao_code
     ):
         terminal_error(
             f"Unable to fetch the station {station_id} from the CSV data file. Please check that the station is in the CSV file. Error=None"
         )
 
     # Validate that the station can have weather fetched
-    metar = weather.get_metar(station_id)
+    metar: Metar | None = weather.get_metar(station_id)
 
-    if metar is None or weather.INVALID in metar:
+    if metar is None or not metar.is_valid():
         stations_unable_to_fetch_weather.append(station_id)
         safe_logging.safe_log_warning(
             f"Unable to fetch weather for {station_id}/{led_indices}"
         )
 
     # Validate that the station can have Sunrise/Sunset fetched
-    day_night_info = weather.get_civil_twilight(station_id)
+    day_night_info: DaylightHours | None = get_civil_twilight(station_id)
 
     if day_night_info is None:
         terminal_error(f"Unable to fetch day/night info for {station_id}/{led_indices}")
-
-    if len(day_night_info) != 6:
-        terminal_error(
-            f"Unknown issue fetching day/night info for {station_id}/{led_indices}"
-        )
 
 safe_logging.safe_log("")
 safe_logging.safe_log("")

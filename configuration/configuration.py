@@ -1,10 +1,11 @@
 """
 Handles configuration loading and constants.
 """
+
+import contextlib
 import json
 import os
 import threading
-import unicodedata
 from pathlib import Path
 
 from lib import local_debug
@@ -15,6 +16,7 @@ if local_debug.is_debug():
     LOW = 0
 else:
     import RPi.GPIO as GPIO
+
     HIGH = GPIO.HIGH
     LOW = GPIO.LOW
 
@@ -22,9 +24,9 @@ else:
 # TODO - Implement file uploading WITH FILE NAME and then write that to the user directory.... with the correct pathing.
 
 # Modes
-STANDARD = 'led'
-WS2801 = 'ws2801'
-WS281x = 'ws281x'
+STANDARD = "led"
+WS2801 = "ws2801"
+WS281x = "ws281x"
 
 LED_MODE_KEY = "mode"
 PIXEL_COUNT_KEY = "pixel_count"
@@ -59,23 +61,18 @@ __VALID_KEYS__ = [
     BRIGHTNESS_PROPORTION_KEY,
     VISUALIZER_INDEX_KEY,
     PIXEL_ORDER_KEY,
-    METAR_STATION_INACTIVE_MINUTES_KEY
+    METAR_STATION_INACTIVE_MINUTES_KEY,
 ]
 
-__VALID_PIXEL_ORDERS__ = [
-    "RGB",
-    "GRB"
-]
+__VALID_PIXEL_ORDERS__ = ["RGB", "GRB"]
 
-__DEFAULT_CONFIG_FILE__ = '../data/config.json'
-__USER_CONFIG_FILE__ = '~/weather_map/config.json'
+__DEFAULT_CONFIG_FILE__ = "../data/config.json"
+__USER_CONFIG_FILE__ = "~/weather_map/config.json"
 
 __lock__ = threading.Lock()
 
 
-def __get_resolved_filepath__(
-    filename: str
-) -> str:
+def __get_resolved_filepath__(filename: str) -> str | None:
     """
     Try to resolve a filename to the proper full path.
     Used to help resolve relative path issues and issues with the working path when started from crontab.
@@ -87,38 +84,35 @@ def __get_resolved_filepath__(
         str -- The fully resolved filepath
     """
 
-    safe_log("Attempting to resolve '{}'".format(filename))
-    safe_log("__file__='{}'".format(__file__))
+    safe_log(f"Attempting to resolve '{filename}'")
+    safe_log(f"__file__='{__file__}'")
 
     try:
         raw_path = filename
 
-        if './' in filename:
+        if "./" in filename:
             raw_path = os.path.join(
-                os.path.dirname(os.path.abspath(__file__)),
-                filename)
+                os.path.dirname(os.path.abspath(__file__)), filename
+            )
         else:
             safe_log("Attempting to expand user pathing.")
             raw_path = Path(os.path.expanduser(filename))
 
             raw_path = str(raw_path)
 
-        safe_log("Before normalization path='{}'".format(raw_path))
+        safe_log(f"Before normalization path='{raw_path}'")
 
         normalized_path = os.path.normpath(raw_path)
 
-        safe_log("Normalized path='{}'".format(raw_path))
+        safe_log(f"Normalized path='{raw_path}'")
 
         return normalized_path
     except Exception as ex:
-        safe_log(
-            "__get_resolved_filepath__:Attempted to resolve. got EX={}".format(ex))
+        safe_log(f"__get_resolved_filepath__:Attempted to resolve. got EX={ex}")
         return None
 
 
-def __load_config_file__(
-    config_filename: str
-) -> dict:
+def __load_config_file__(config_filename: str) -> dict:
     """
     Loads a configuration file from the given source.
 
@@ -145,8 +139,7 @@ def __load_config_file__(
 
             return configuration
     except Exception as ex:
-        safe_log_warning(
-            "Error while trying to load {}: EX={}".format(config_filename, ex))
+        safe_log_warning(f"Error while trying to load {config_filename}: EX={ex}")
         return {}
 
 
@@ -168,9 +161,7 @@ def __get_configuration__() -> dict:
 CONFIG = __get_configuration__()
 
 
-def __write_user_configuration__(
-    config: dict
-) -> bool:
+def __write_user_configuration__(config: dict) -> bool:
     """
     Writes the current configuration to the user directory.
 
@@ -182,31 +173,28 @@ def __write_user_configuration__(
 
         full_filename = None
 
-        try:
+        with contextlib.suppress(Exception):
             full_filename = __get_resolved_filepath__(__USER_CONFIG_FILE__)
-            safe_log("full_filename=`{}`".format(full_filename))
-        except Exception:
-            pass
-
+            safe_log(f"full_filename=`{full_filename}`")
         if full_filename is None:
             safe_log("Unable to resolve, using relative path + name instead.")
             full_filename = __USER_CONFIG_FILE__
 
         directory = os.path.dirname(full_filename)
-        safe_log("directory=`{}`".format(directory))
+        safe_log(f"directory=`{directory}`")
 
         if not os.path.exists(directory):
             try:
-                safe_log("Attempting to create directory `{}`".format(directory))
+                safe_log(f"Attempting to create directory `{directory}`")
                 os.mkdir(directory)
             except Exception as ex:
-                safe_log("While attempting to create directory, EX={}".format(ex))
+                safe_log(f"While attempting to create directory, EX={ex}")
 
         with open(str(full_filename), "w") as config_file:
-            safe_log("Opened `{}` for write.".format(full_filename))
+            safe_log(f"Opened `{full_filename}` for write.")
 
             config_text = json.dumps(config, indent=4, sort_keys=True)
-            safe_log("config_text=`{}`".format(config_text))
+            safe_log(f"config_text=`{config_text}`")
 
             config_file.write(config_text)
 
@@ -214,16 +202,11 @@ def __write_user_configuration__(
 
             return True
     except Exception as ex:
-        safe_log(
-            "Error while trying to write {}: EX={}".format(
-                __USER_CONFIG_FILE__,
-                ex))
+        safe_log(f"Error while trying to write {__USER_CONFIG_FILE__}: EX={ex}")
         return False
 
 
-def update_configuration(
-    new_config: dict
-) -> dict:
+def update_configuration(new_config: dict) -> dict:
     """
     Given a new piece of configuration, update it gracefully.
 
@@ -236,12 +219,11 @@ def update_configuration(
     if new_config is None:
         return CONFIG.copy()
 
-    update_package = {}
-
-    for valid_key in __VALID_KEYS__:
-        if valid_key in new_config and new_config[valid_key] is not None:
-            update_package[valid_key] = new_config[valid_key]
-
+    update_package = {
+        valid_key: new_config[valid_key]
+        for valid_key in __VALID_KEYS__
+        if valid_key in new_config and new_config[valid_key] is not None
+    }
     __lock__.acquire()
     CONFIG.update(update_package)
     config_copy = CONFIG.copy()
@@ -252,10 +234,7 @@ def update_configuration(
     return config_copy
 
 
-def __get_number_config_value__(
-    config_key: str,
-    default: float = 0
-) -> float:
+def __get_number_config_value__(config_key: str, default: float = 0) -> float:
     """
     Get a configuration value from the config that is a boolean.
     If the value is not in the config, then use the default.
@@ -279,10 +258,7 @@ def __get_number_config_value__(
     return default
 
 
-def __get_boolean_config_value__(
-    config_key: str,
-    default: bool = False
-) -> bool:
+def __get_boolean_config_value__(config_key: str, default: bool = False) -> bool:
     """
     Get a configuration value from the config that is a boolean.
     If the value is not in the config, then use the default.
@@ -308,12 +284,10 @@ def get_mode():
     Returns the mode given in the config.
     """
 
-    return CONFIG['mode']
+    return CONFIG["mode"]
 
 
-def get_visualizer_index(
-    visualizers: list = None
-) -> int:
+def get_visualizer_index(visualizers: list) -> int:
     """
     Returns the index of the visualizer we will use.
     Performs basic clamping on the index if a list is provided.
@@ -321,8 +295,7 @@ def get_visualizer_index(
     Returns:
         int: The index of the visualizer to use.
     """
-    visualizer_index = int(
-        __get_number_config_value__(VISUALIZER_INDEX_KEY, 0))
+    visualizer_index = int(__get_number_config_value__(VISUALIZER_INDEX_KEY, 0))
 
     if visualizers is None:
         return visualizer_index
@@ -340,10 +313,7 @@ def get_visualizer_index(
     return visualizer_index
 
 
-def update_visualizer_index(
-    visualizers: list,
-    new_index: int
-) -> int:
+def update_visualizer_index(visualizers: list, new_index: int) -> int:
     __lock__.acquire()
     CONFIG[VISUALIZER_INDEX_KEY] = new_index
     wrapped_index = get_visualizer_index(visualizers)
@@ -363,10 +333,7 @@ def get_pixel_order():
     try:
         value = CONFIG[PIXEL_ORDER_KEY]
 
-        if value not in __VALID_PIXEL_ORDERS__:
-            return PIXEL_ORDER_DEFAULT
-
-        return value
+        return PIXEL_ORDER_DEFAULT if value not in __VALID_PIXEL_ORDERS__ else value
     except Exception:
         return PIXEL_ORDER_DEFAULT
 
@@ -379,7 +346,7 @@ def get_blink_station_if_old_data() -> bool:
         bool -- Should the station be blinked if the data is too old?
     """
 
-    return __get_boolean_config_value__('blink_old_stations', True)
+    return __get_boolean_config_value__("blink_old_stations", True)
 
 
 def get_metar_station_inactive_minutes() -> int:
@@ -389,7 +356,11 @@ def get_metar_station_inactive_minutes() -> int:
     Returns:
         int: The number of minutes after which the station is considered inactive.
     """
-    return __get_number_config_value__(METAR_STATION_INACTIVE_MINUTES_KEY, DEFAULT_METAR_STATION_INACTIVE_MINUTES)
+    return int(
+        __get_number_config_value__(
+            METAR_STATION_INACTIVE_MINUTES_KEY, DEFAULT_METAR_STATION_INACTIVE_MINUTES
+        )
+    )
 
 
 def get_snow_pulse():
@@ -414,7 +385,7 @@ def get_night_lights():
         boolean -- True if we should light airports that are in the dark
         differently.
     """
-    return __get_boolean_config_value__('night_lights')
+    return __get_boolean_config_value__("night_lights")
 
 
 def get_night_populated_yellow():
@@ -426,7 +397,7 @@ def get_night_populated_yellow():
     Returns:
         boolean -- True if the color of the station should be yellow when it is dark.
     """
-    return __get_boolean_config_value__('night_populated_yellow', True)
+    return __get_boolean_config_value__("night_populated_yellow", True)
 
 
 def get_night_category_proportion():
@@ -443,16 +414,10 @@ def get_night_category_proportion():
 
     try:
         unclamped = __get_number_config_value__(
-            NIGHT_CATEGORY_PROPORTION_KEY,
-            default_mix)
+            NIGHT_CATEGORY_PROPORTION_KEY, default_mix
+        )
 
-        if unclamped < 0.0:
-            return 0.0
-
-        if unclamped > 1.0:
-            return 1.0
-
-        return unclamped
+        return 0.0 if unclamped < 0.0 else min(unclamped, 1.0)
     except Exception:
         return default_mix
 
@@ -479,7 +444,7 @@ def get_brightness_proportion() -> float:
     """
     default = 1.0
     try:
-        return __get_number_config_value__('brightness_proportion', default)
+        return __get_number_config_value__("brightness_proportion", default)
     except Exception:
         return default
 
@@ -489,10 +454,10 @@ def get_airport_file():
     Returns the file that contains the airport config
     """
 
-    return CONFIG['airports_file']
+    return CONFIG["airports_file"]
 
 
-def get_airport_configs():
+def get_airport_configs() -> dict[str, dict]:
     """
     Returns the configuration for the lighting type
 
@@ -503,9 +468,7 @@ def get_airport_configs():
     return __load_station_config__(get_airport_file())
 
 
-def __load_station_config__(
-    config_file: str
-) -> dict:
+def __load_station_config__(config_file: str) -> dict[str, dict]:
     """
     Loads the configuration for WS2801/neopixel based setups.
 
@@ -530,7 +493,6 @@ def __load_station_config__(
         if normalized_code not in out_airport_map:
             out_airport_map[normalized_code] = []
 
-        out_airport_map[normalized_code].append(
-            airport_data[airport_code]['neopixel'])
+        out_airport_map[normalized_code].append(airport_data[airport_code]["neopixel"])
 
     return out_airport_map

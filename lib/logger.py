@@ -1,10 +1,11 @@
 """
 Simple wrapper around a logger.
 """
+
 import logging
 import logging.handlers
 import threading
-from datetime import datetime
+from datetime import datetime, timezone
 
 LOG_NAME = "weathermap"
 
@@ -24,10 +25,10 @@ def __escape__(text):
     ''
     """
 
-    return str(text).replace('\r', '\\r').replace('\n', '\\n').replace('\x1a', '\\x1a')
+    return str(text).replace("\r", "\\r").replace("\n", "\\n").replace("\x1a", "\\x1a")
 
 
-class Logger(object):
+class Logger:
     """
     Wrapper around a normal logger so stuff gets printed too.
     """
@@ -39,13 +40,14 @@ class Logger(object):
         self.log_warning_message(message_to_log)
 
     def log_info_message(self, message_to_log, print_to_screen=True):
-        """ Log and print at Info level """
+        """Log and print at Info level"""
         try:
             __lock__.acquire()
 
             if print_to_screen:
-                text = "{} INFO: {}".format(
-                    datetime.utcnow(), __escape__(message_to_log))
+                text = (
+                    f"{datetime.now(timezone.utc)} INFO: {__escape__(message_to_log)}"
+                )
                 print(text)
             self.__logger__.info(__escape__(message_to_log))
         finally:
@@ -54,11 +56,11 @@ class Logger(object):
         return message_to_log
 
     def log_warning_message(self, message_to_log):
-        """ Log and print at Warning level """
+        """Log and print at Warning level"""
         try:
             __lock__.acquire()
 
-            text = "{} WARN: {}".format(datetime.utcnow(), message_to_log)
+            text = f"{datetime.now(timezone.utc)} WARN: {message_to_log}"
             self.__logger__.warning(__escape__(text))
         finally:
             __lock__.release()
@@ -72,11 +74,11 @@ class Logger(object):
 __python_logger__ = logging.getLogger(LOG_NAME)
 __python_logger__.setLevel(logging.DEBUG)
 __handler__ = logging.handlers.RotatingFileHandler(
-    "weathermap.log",
-    maxBytes=10485760,
-    backupCount=10)
-__handler__.setFormatter(logging.Formatter(
-    '%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+    "weathermap.log", maxBytes=10485760, backupCount=10
+)
+__handler__.setFormatter(
+    logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+)
 __python_logger__.addHandler(__handler__)
 
 LOGGER = Logger(__python_logger__)

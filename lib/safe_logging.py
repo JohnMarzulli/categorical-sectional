@@ -2,19 +2,17 @@
 Logging utilities for the WeatherMap
 """
 
-import inspect
+import contextlib
 import traceback
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from lib.logger import LOGGER
 
-TAB_TEXT = ' ' * 4
-MODULE_NAME = '<module>'
+TAB_TEXT = " " * 4
+MODULE_NAME = "<module>"
 
 
-def __get_callstack_indent_count(
-    stack_adjustment: int = 3
-) -> int:
+def __get_callstack_indent_count__(stack_adjustment: int = 3) -> int:
     """
     Returns the number of indents that should be applied to the logging statement.
 
@@ -44,10 +42,7 @@ def __get_callstack_indent_count(
         return 0
 
 
-def __get_indents(
-    count: int = 0,
-    stack_adjustment: int = 3
-) -> str:
+def __get_indents__(count: int = 0, stack_adjustment: int = 3) -> str:
     """
     Returns whitespace for the number of given indents.
 
@@ -59,30 +54,23 @@ def __get_indents(
         string -- A whitespace string.
     """
 
-    if count < 0:
-        count = 0
+    count = max(count, 0)
+    function_name = "UNKNOWN"
+    line_num = "UNKNOWN"
 
-    function_name = 'UNKNOWN'
-    line_num = 'UNKNOWN'
-
-    try:
+    with contextlib.suppress(Exception):
         cs_info = traceback.extract_stack()
         index = len(cs_info) - stack_adjustment
-        function_name = '{}()'.format(cs_info[index].name)
+        function_name = f"{cs_info[index].name}()"
 
         if MODULE_NAME in function_name:
             function_name = cs_info[index].filename
 
         line_num = cs_info[index].lineno
-    except:
-        pass
-
-    return '{}{}:{}: '.format(TAB_TEXT * count, function_name, line_num)
+    return f"{TAB_TEXT * count}{function_name}:{line_num}: "
 
 
-def safe_log(
-    message: str
-):
+def safe_log(message: str):
     """
     Logs an INFO level message safely. Also prints it to the screen.
 
@@ -92,18 +80,16 @@ def safe_log(
     """
 
     try:
-        indents = __get_indents(__get_callstack_indent_count())
+        indents = __get_indents__(__get_callstack_indent_count__())
         if LOGGER is not None:
             LOGGER.log_info_message(indents + message)
         else:
-            print('{} INFO: {}{}'.format(datetime.now(), indents, message))
+            print(f"{datetime.now()} INFO: {indents}{message}")
     except Exception:
-        print('{}{}'.format(indents,  message))
+        print(f"{indents}{message}")
 
 
-def safe_log_warning(
-    message: str
-):
+def safe_log_warning(message: str):
     """
     Logs a WARN level message safely. Also prints it to the screen.
 
@@ -113,11 +99,11 @@ def safe_log_warning(
     """
 
     try:
-        indents = __get_indents(__get_callstack_indent_count())
+        indents = __get_indents__(__get_callstack_indent_count__())
 
         if LOGGER is not None:
             LOGGER.log_warning_message(indents + message)
         else:
-            print('{} WARN: {}{}'.format(datetime.now(), indents, message))
+            print(f"{datetime.now()} WARN: {indents}{message}")
     except Exception:
-        print(indents + message)
+        print(f"{indents}{message}")

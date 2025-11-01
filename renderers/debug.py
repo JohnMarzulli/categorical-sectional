@@ -6,16 +6,9 @@ License: Public Domain
 
 from __future__ import division
 
-import time
-
-import lib.local_debug as local_debug
-
 
 class Renderer(object):
-    def __init__(
-        self,
-        pixel_count
-    ):
+    def __init__(self, pixel_count):
         """
         Create a "renderer" for debugging.
 
@@ -25,14 +18,11 @@ class Renderer(object):
 
         super().__init__()
 
-        self.pixel_count = pixel_count
-        self.pixels = [(0, 0, 0)] * pixel_count
-        self.__is_dirty__ = False
+        self.pixel_count: int = pixel_count
+        self.pixels: list[list[int]] = [[0, 0, 0]] * pixel_count
+        self.__is_dirty__: bool = False
 
-    def set_all(
-        self,
-        color: list
-    ):
+    def set_all(self, color: list[int]):
         """
         Sets all of the LEDs to the same color.
 
@@ -42,11 +32,7 @@ class Renderer(object):
         self.pixels = [color] * self.pixel_count
         self.show()
 
-    def set_led(
-        self,
-        pixel_index: int,
-        color: list
-    ):
+    def set_led(self, pixel_index: int, color: list[int]):
         """
         Sets the given airport to the given color
 
@@ -62,12 +48,8 @@ class Renderer(object):
 
         self.pixels[pixel_index] = color
         self.__is_dirty__ = True
-    
-    def set_leds(
-        self,
-        pixel_list: list,
-        color: list
-    ):
+
+    def set_leds(self, pixel_list: list, color: list[int]):
         """
         Sets all of the pixels in the given list to the given color.
 
@@ -78,12 +60,8 @@ class Renderer(object):
         for pixel_index in pixel_list:
             self.set_led(pixel_index, color)
 
-    def show(
-        self
-    ):
+    def show(self):
         self.__is_dirty__ = False
 
-    def clear(
-        self
-    ):
+    def clear(self):
         self.set_all([0, 0, 0])

@@ -23,6 +23,7 @@ class HalloweenLights(Visualizer):
         color_count = len(brightness_adjusted_colors)
 
         mod_second = current_seconds % color_count
+        color_index = 0
 
         for i in range(pixel_count):
             try:
@@ -33,6 +34,6 @@ class HalloweenLights(Visualizer):
 
                 self.__renderer__.set_led(i, color)
             except Exception as ex:
-                print('While attempting to set LED:{i} in mod_second:{mod_second} to color_index:{color_index}. color_count:{color_count} EX={ex}')
+                print(f'While attempting to set LED:{i} in mod_second:{mod_second} to color_index:{color_index}. color_count:{color_count} EX={ex}')
 
         self.__renderer__.show()

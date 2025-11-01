@@ -8,10 +8,11 @@ from visualizers.visualizer import Visualizer
 
 class HalloweenLights(Visualizer):
     def __init__(self, renderer: Renderer, stations: dict):
+        off = [0, 0, 0]
         orange = [240, 173, 31]
         green = [0, 255, 0]
         purple = [160, 32, 240]
-        self.__colors__ = [orange, green, purple]
+        self.__colors__ = [off, off, orange, green, purple, off, off]
         # The lower the adjustment, the slower the lights. 0.5 is half the speed.
         # The higher the adjustment, the faster the lights. 2 is twice the speed.
         self.__speed_adjustment__ = 8

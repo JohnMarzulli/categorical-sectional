@@ -87,7 +87,7 @@ def get_metar(airport_icao_code: str, use_cache: bool = True) -> Metar:
         return Metar("")
 
 
-def get_metars(airport_icao_codes: list[str]) -> dict[str, Metar]:
+def get_metars(airport_icao_codes: list[str]) -> dict:
     """
     Returns the (RAW) METAR for the given station
 
@@ -217,7 +217,7 @@ def __is_station_ok_to_call__(icao_code: str) -> bool:
         return True
 
 
-def __get_metar_reports_from_web__(airport_icao_codes: list) -> dict[str, Metar]:
+def __get_metar_reports_from_web__(airport_icao_codes: list) -> dict:
     """
     Calls to the web an attempts to gets the METARs for the requested station list.
 

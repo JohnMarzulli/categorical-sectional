@@ -87,7 +87,7 @@ def get_metar(airport_icao_code: str, use_cache: bool = True) -> Metar:
         return Metar("")
 
 
-def get_metars(airport_icao_codes: list[str]) -> dict:
+def get_metars(airport_icao_codes: list) -> dict:
     """
     Returns the (RAW) METAR for the given station
 

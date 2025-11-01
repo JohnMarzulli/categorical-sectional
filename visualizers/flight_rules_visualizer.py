@@ -166,7 +166,7 @@ class FlightRulesVisualizer(BlinkingVisualizer):
         if blink and is_blink:
             color_by_category = AVAILABLE_COLORS[colors_lib.OFF]
 
-        color_to_render: list[int] = self.__get_brightness_adjusted_color__(
+        color_to_render: list = self.__get_brightness_adjusted_color__(
             station, color_by_category
         )
 

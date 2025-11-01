@@ -3,7 +3,7 @@ from renderers.debug import Renderer
 from visualizers.visualizer import Visualizer
 
 
-def wheel(pos) -> list[int]:
+def wheel(pos) -> list:
     # Input a value 0 to 255 to get a color value.
     # The colours are a transition r - g - b - back to r.
     if pos < 0 or pos > 255:

@@ -183,7 +183,7 @@ class Metar:
             )
         return meteorology.types.classifications.VFR
 
-    def get_main_metar_components(self) -> list[str]:
+    def get_main_metar_components(self) -> list:
         return [] if self.metar is None else self.metar.split("RMK")[0].split(" ")[1:]
 
     def get_ceiling(self) -> int:

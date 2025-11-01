@@ -132,7 +132,7 @@ class Visualizer(object):
 
     def __get_brightness_adjusted_color__(
         self, station: str, starting_color: list
-    ) -> list[int]:
+    ) -> list:
         proportions, color_to_render = __get_mix_and_color__(starting_color, station)
         brightness_adjustment = configuration.get_brightness_proportion()
         return colors_lib.get_brightness_adjusted_color(

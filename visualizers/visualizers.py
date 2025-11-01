@@ -2,7 +2,8 @@ from renderers.debug import Renderer
 from visualizers.flight_rules_visualizer import FlightRulesVisualizer
 from visualizers.pressure_visualizer import PressureVisualizer
 from visualizers.rainbow_visualizer import RainbowVisualizer
-from visualizers.halloween_lights_visualizer import HalloweenLights
+from visualizers.halloween_lights_visualizer import HalloweenLightsVisualizer
+from visualizers.pong_visualizer import PongVisualizer
 from visualizers.holiday_lights_visualizer import HolidayLights
 from visualizers.light_cycle_visualizer import LightCycleVisualizer
 from visualizers.precipitation_visualizer import PrecipitationVisualizer
@@ -29,7 +30,8 @@ class VisualizerManager(object):
             RainbowVisualizer(renderer, stations),
             LightCycleVisualizer(renderer, stations),
             HolidayLights(renderer, stations),
-            HalloweenLights(renderer, stations),
+            HalloweenLightsVisualizer(renderer, stations),
+            PongVisualizer(renderer, stations),
         ]
 
         return VisualizerManager.__VISUALIZERS__

@@ -6,7 +6,7 @@ from renderers.debug import Renderer
 from visualizers.visualizer import Visualizer
 
 
-class HalloweenLights(Visualizer):
+class HalloweenLightsVisualizer(Visualizer):
     def __init__(self, renderer: Renderer, stations: dict):
         off = [0, 0, 0]
         orange = [240, 173, 31]

@@ -12,9 +12,9 @@ class HalloweenLights(Visualizer):
         green = [0, 255, 0]
         purple = [160, 32, 240]
         self.__colors__ = [orange, green, purple]
-        # The higher the adjustment, the slower the lights. 2 is half the speed. 4 is quarter
-        # The lower the adjustment, the faster the lights. 0.5 is twice the speed.
-        self.__speed_adjustment__ = 0.5
+        # The lower the adjustment, the slower the lights. 0.5 is half the speed.
+        # The higher the adjustment, the faster the lights. 2 is twice the speed.
+        self.__speed_adjustment__ = 4
         super().__init__(renderer, stations)
 
     def update(self, time_slice: float):

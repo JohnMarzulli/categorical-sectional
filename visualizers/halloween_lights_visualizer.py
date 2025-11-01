@@ -20,7 +20,7 @@ class HalloweenLightsVisualizer(Visualizer):
         super().__init__(renderer, stations)
 
     def update(self, time_slice: float):
-        elapsed_seconds = datetime.now(timezone.utc).second * self.__speed_adjustment__
+        elapsed_seconds = time_slice * self.__speed_adjustment__
         self.__incremental_index__ += elapsed_seconds
         pixel_count = configuration.CONFIG[configuration.PIXEL_COUNT_KEY]
         brightness_adjustment = configuration.get_brightness_proportion()

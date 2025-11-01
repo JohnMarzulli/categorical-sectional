@@ -40,8 +40,9 @@ class PongVisualizer(Visualizer):
         brightness_adjusted_color = colors_lib.get_brightness_adjusted_color(self.__ball_color__, brightness_adjustment)
         self.__renderer__.set_led(index, brightness_adjusted_color)
 
-        self.__renderer__.set_led(index - self.__direction__, colors_lib.get_brightness_adjusted_color(self.__trail_color__, brightness_adjustment / 2))
-        self.__renderer__.set_led(index - (2 * self.__direction__), colors_lib.get_brightness_adjusted_color(self.__trail_color__, brightness_adjustment / 4))
+        self.__renderer__.set_led(index - (1 * self.__direction__), colors_lib.get_brightness_adjusted_color(self.__trail_color__, brightness_adjustment))
+        self.__renderer__.set_led(index - (2 * self.__direction__), colors_lib.get_brightness_adjusted_color(self.__trail_color__, brightness_adjustment / 2))
+        self.__renderer__.set_led(index - (3 * self.__direction__), colors_lib.get_brightness_adjusted_color(self.__trail_color__, brightness_adjustment / 4))
         self.__renderer__.set_led(index - (3 * self.__direction__), colors_lib.get_brightness_adjusted_color(self.__trail_color__, brightness_adjustment / 8))
 
         self.__renderer__.show()

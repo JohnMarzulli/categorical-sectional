@@ -1,14 +1,12 @@
 from renderers.debug import Renderer
-from visualizers import (
-    flight_rules_visualizer,
-    pressure_visualizer,
-    rainbow_visualizer,
-    halloween_lights_visualizer,
-    holiday_lights_visualizer,
-    light_cycle_visualizer,
-    precipitation_visualizer,
-    temperature_visualizer,
-)
+from visualizers.flight_rules_visualizer import FlightRulesVisualizer
+from visualizers.pressure_visualizer import PressureVisualizer
+from visualizers.rainbow_visualizer import RainbowVisualizer
+from visualizers.halloween_lights_visualizer import HalloweenLights
+from visualizers.holiday_lights_visualizer import HolidayLights
+from visualizers.light_cycle_visualizer import LightCycleVisualizer
+from visualizers.precipitation_visualizer import PrecipitationVisualizer
+from visualizers.temperature_visualizer import TemperatureVisualizer
 
 
 class VisualizerManager(object):
@@ -24,14 +22,14 @@ class VisualizerManager(object):
             return VisualizerManager.__VISUALIZERS__
 
         VisualizerManager.__VISUALIZERS__ = [
-            flight_rules_visualizer.FlightRulesVisualizer(renderer, stations),
-            temperature_visualizer.TemperatureVisualizer(renderer, stations),
-            precipitation_visualizer.PrecipitationVisualizer(renderer, stations),
-            pressure_visualizer.PressureVisualizer(renderer, stations),
-            rainbow_visualizer.RainbowVisualizer(renderer, stations),
-            light_cycle_visualizer.LightCycleVisualizer(renderer, stations),
-            holiday_lights_visualizer.HolidayLights(renderer, stations),
-            halloween_lights_visualizer.HalloweenLights(renderer, stations),
+            FlightRulesVisualizer(renderer, stations),
+            TemperatureVisualizer(renderer, stations),
+            PrecipitationVisualizer(renderer, stations),
+            PressureVisualizer(renderer, stations),
+            RainbowVisualizer(renderer, stations),
+            LightCycleVisualizer(renderer, stations),
+            HolidayLights(renderer, stations),
+            HalloweenLights(renderer, stations),
         ]
 
         return VisualizerManager.__VISUALIZERS__

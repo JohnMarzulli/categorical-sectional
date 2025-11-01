@@ -1,3 +1,4 @@
+import visualizers.halloween_lights_visualizer
 import visualizers.holiday_lights_visualizer
 import visualizers.light_cycle_visualizer
 import visualizers.precipitation_visualizer
@@ -30,6 +31,7 @@ class VisualizerManager(object):
             rainbow_visualizer.RainbowVisualizer(renderer, stations),
             visualizers.light_cycle_visualizer.LightCycleVisualizer(renderer, stations),
             visualizers.holiday_lights_visualizer.HolidayLights(renderer, stations),
+            visualizers.halloween_lights_visualizer.HalloweenLights(renderer, stations),
         ]
 
         return VisualizerManager.__VISUALIZERS__

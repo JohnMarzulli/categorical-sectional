@@ -27,6 +27,7 @@ class HalloweenLights(Visualizer):
         for i in range(pixel_count):
             color_index = (i + mod_second)
             color_index = color_index if color_index < color_count else color_index - color_count
+            color_index = color_index if color_index >= 0 else color_index + color_count
             color = brightness_adjusted_colors[color_index]
 
             self.__renderer__.set_led(i, color)

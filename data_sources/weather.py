@@ -35,7 +35,7 @@ DEFAULT_METAR_LIFESPAN_MINUTES = 60
 DEFAULT_METAR_INVALIDATE_MINUTES = DEFAULT_METAR_LIFESPAN_MINUTES * 1.5
 
 
-def get_metar(airport_icao_code: str, use_cache: bool = True) -> Metar | None:
+def get_metar(airport_icao_code: str, use_cache: bool = True) -> Metar:
     """
     Returns the (RAW) METAR for the given station
 
@@ -69,14 +69,14 @@ def get_metar(airport_icao_code: str, use_cache: bool = True) -> Metar | None:
                 f"Get a None while attempting to get METAR for {airport_icao_code}"
             )
 
-            return None
+            return Metar("")
 
         if airport_icao_code not in metars:
             safe_log(
                 f"Got a result, but {airport_icao_code} was not in results package"
             )
 
-            return None
+            return Metar("")
 
         return metars[airport_icao_code]
 
@@ -84,7 +84,7 @@ def get_metar(airport_icao_code: str, use_cache: bool = True) -> Metar | None:
         safe_log(f"get_metar got EX:{e}")
         safe_log("")
 
-        return None
+        return Metar("")
 
 
 def get_metars(airport_icao_codes: list[str]) -> dict[str, Metar]:
@@ -268,7 +268,7 @@ if __name__ == "__main__":
     for identifier in airports_to_test:
         faa_csv_identifer = data_sources.airports.get_faa_csv_identifier(identifier)
 
-        metar: Metar | None = get_metar(identifier)
+        metar: Metar = get_metar(identifier)
 
         if metar is None:
             print(f"ERROR: unable to get metar for '{identifier}'")

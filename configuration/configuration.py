@@ -72,7 +72,7 @@ __USER_CONFIG_FILE__ = "~/weather_map/config.json"
 __lock__ = threading.Lock()
 
 
-def __get_resolved_filepath__(filename: str) -> str | None:
+def __get_resolved_filepath__(filename: str) -> str:
     """
     Try to resolve a filename to the proper full path.
     Used to help resolve relative path issues and issues with the working path when started from crontab.
@@ -108,8 +108,7 @@ def __get_resolved_filepath__(filename: str) -> str | None:
 
         return normalized_path
     except Exception as ex:
-        safe_log(f"__get_resolved_filepath__:Attempted to resolve. got EX={ex}")
-        return None
+        raise Exception(f"__get_resolved_filepath__:Attempted to resolve. got EX={ex}")
 
 
 def __load_config_file__(config_filename: str) -> dict:

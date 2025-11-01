@@ -111,7 +111,7 @@ def get_airport_condition(airport: str) -> tuple[str, bool]:
     """
 
     try:
-        metar: Metar | None = weather.get_metar(airport)
+        metar: Metar = weather.get_metar(airport)
         category = (
             meteorology.types.classifications.INVALID
             if metar is None

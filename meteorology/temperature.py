@@ -3,7 +3,7 @@ def celsius_to_fahrenheit(temperature_celsius: float) -> float:
     Convert a temperature in Celsius to Fahrenheit.
 
     Args:
-        temperature_celsius (float | None): Temperature in °C. If None, returns 0.0.
+        temperature_celsius (float): Temperature in °C. If None, returns 0.0.
 
     Returns:
         float: Temperature converted to °F.

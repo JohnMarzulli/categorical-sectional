@@ -8,9 +8,9 @@ from visualizers.visualizer import Visualizer
 
 class HalloweenLights(Visualizer):
     def __init__(self, renderer: Renderer, stations: dict):
-        self.__orange__ = [255, 165, 0]
+        self.__orange__ = [240, 173, 31]
         self.__green__ = [0, 255, 0]
-        self.__purple__ = [128, 0, 128]
+        self.__purple__ = [160, 32, 240]
         super().__init__(renderer, stations)
 
     def update(self, time_slice: float):

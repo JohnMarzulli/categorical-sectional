@@ -29,6 +29,7 @@ class HalloweenLightsVisualizer(Visualizer):
             self.__incremental_index__ -= 1.0
             new_color_order = [self.__colors__[-1]]
             new_color_order.extend(self.__colors__[:-1])
+            self.__colors__ = new_color_order
 
         brightness_adjusted_colors: list = [colors_lib.get_brightness_adjusted_color(color, brightness_adjustment) for color in self.__colors__]
         color_count: int = len(brightness_adjusted_colors)

@@ -1,10 +1,14 @@
-import visualizers.halloween_lights_visualizer
-import visualizers.holiday_lights_visualizer
-import visualizers.light_cycle_visualizer
-import visualizers.precipitation_visualizer
-import visualizers.temperature_visualizer
 from renderers.debug import Renderer
-from visualizers import flight_rules_visualizer, pressure_visualizer, rainbow_visualizer
+from visualizers import (
+    flight_rules_visualizer,
+    pressure_visualizer,
+    rainbow_visualizer,
+    halloween_lights_visualizer,
+    holiday_lights_visualizer,
+    light_cycle_visualizer,
+    precipitation_visualizer,
+    temperature_visualizer,
+)
 
 
 class VisualizerManager(object):
@@ -21,17 +25,13 @@ class VisualizerManager(object):
 
         VisualizerManager.__VISUALIZERS__ = [
             flight_rules_visualizer.FlightRulesVisualizer(renderer, stations),
-            visualizers.temperature_visualizer.TemperatureVisualizer(
-                renderer, stations
-            ),
-            visualizers.precipitation_visualizer.PrecipitationVisualizer(
-                renderer, stations
-            ),
+            temperature_visualizer.TemperatureVisualizer(renderer, stations),
+            precipitation_visualizer.PrecipitationVisualizer(renderer, stations),
             pressure_visualizer.PressureVisualizer(renderer, stations),
             rainbow_visualizer.RainbowVisualizer(renderer, stations),
-            visualizers.light_cycle_visualizer.LightCycleVisualizer(renderer, stations),
-            visualizers.holiday_lights_visualizer.HolidayLights(renderer, stations),
-            visualizers.halloween_lights_visualizer.HalloweenLights(renderer, stations),
+            light_cycle_visualizer.LightCycleVisualizer(renderer, stations),
+            holiday_lights_visualizer.HolidayLights(renderer, stations),
+            halloween_lights_visualizer.HalloweenLights(renderer, stations),
         ]
 
         return VisualizerManager.__VISUALIZERS__

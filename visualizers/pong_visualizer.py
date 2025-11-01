@@ -8,7 +8,8 @@ from visualizers.visualizer import Visualizer
 
 class PongVisualizer(Visualizer):
     def __init__(self, renderer: Renderer, stations: dict):
-        self.__ball_color__ = [240, 173, 31] # Orange
+        self.__ball_color__ = [255, 255, 255]
+        self.__trail_color__ = [240, 173, 31] # Orange
         self.__off__ = [0, 0, 0]
         # The lower the adjustment, the slower the lights. 0.5 is half the speed.
         # The higher the adjustment, the faster the lights. 2 is twice the speed.
@@ -43,8 +44,8 @@ class PongVisualizer(Visualizer):
             except Exception as ex:
                 print(f'While attempting to set LED:{i} while index:{index}, __incremental_index__:{self.__incremental_index__}, and __direction__:{self.__direction__} EX={ex}')
 
-        self.__renderer__.set_led(index - self.__direction__, colors_lib.get_brightness_adjusted_color(self.__ball_color__, brightness_adjustment / 2))
-        self.__renderer__.set_led(index - (2 * self.__direction__), colors_lib.get_brightness_adjusted_color(self.__ball_color__, brightness_adjustment / 4))
-        self.__renderer__.set_led(index - (3 * self.__direction__), colors_lib.get_brightness_adjusted_color(self.__ball_color__, brightness_adjustment / 8))
+        self.__renderer__.set_led(index - self.__direction__, colors_lib.get_brightness_adjusted_color(self.__trail_color__, brightness_adjustment / 2))
+        self.__renderer__.set_led(index - (2 * self.__direction__), colors_lib.get_brightness_adjusted_color(self.__trail_color__, brightness_adjustment / 4))
+        self.__renderer__.set_led(index - (3 * self.__direction__), colors_lib.get_brightness_adjusted_color(self.__trail_color__, brightness_adjustment / 8))
 
         self.__renderer__.show()

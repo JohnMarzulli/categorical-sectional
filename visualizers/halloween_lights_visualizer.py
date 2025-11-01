@@ -27,7 +27,8 @@ class HalloweenLights(Visualizer):
 
         for i in range(pixel_count):
             try:
-                color_index = (i + mod_second)
+                relative_led_index = i % color_count
+                color_index = (relative_led_index + mod_second)
                 color_index = color_index if color_index < color_count else color_index - color_count
                 color_index = color_index if color_index >= 0 else color_index + color_count
                 color = brightness_adjusted_colors[color_index]

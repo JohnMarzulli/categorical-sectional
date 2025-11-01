@@ -99,7 +99,7 @@ def get_metars(airport_icao_codes: list) -> dict:
         Returns INVALID as the value for the key if an error occurs.
     """
 
-    metars: dict[str, Metar] = {}
+    metars: dict = {}
 
     # For the airports and identifiers that we were not able to get
     # a result for, see if we can fill in the results.

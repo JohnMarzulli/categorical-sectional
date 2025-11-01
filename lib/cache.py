@@ -25,7 +25,7 @@ class CacheResult:
 class Cache:
     def __init__(self, max_cache_life_minutes: int = 8):
         self.__cache_lock__: threading.Lock = threading.Lock()
-        self.__cache__: dict[str, CacheEntry] = {}
+        self.__cache__: dict = {}
         self.__max_cache_life_minutes__: int = max_cache_life_minutes
 
     def set(self, station_icao_code: str, value):

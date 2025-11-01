@@ -4,8 +4,8 @@ from data_sources import daylight
 from lib import colors as colors_lib
 from renderers.debug import Renderer
 
-AVAILABLE_COLORS: dict[str, list] = colors_lib.get_colors()
-__COLORS_BY_FLIGHT_RULE__: dict[str, list] = {
+AVAILABLE_COLORS: dict = colors_lib.get_colors()
+__COLORS_BY_FLIGHT_RULE__: dict = {
     meteorology.types.classifications.IFR: AVAILABLE_COLORS[colors_lib.RED],
     meteorology.types.classifications.VFR: AVAILABLE_COLORS[colors_lib.GREEN],
     meteorology.types.classifications.MVFR: AVAILABLE_COLORS[colors_lib.BLUE],

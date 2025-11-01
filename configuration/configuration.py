@@ -456,7 +456,7 @@ def get_airport_file():
     return CONFIG["airports_file"]
 
 
-def get_airport_configs() -> dict[str, dict]:
+def get_airport_configs():
     """
     Returns the configuration for the lighting type
 
@@ -467,7 +467,7 @@ def get_airport_configs() -> dict[str, dict]:
     return __load_station_config__(get_airport_file())
 
 
-def __load_station_config__(config_file: str) -> dict[str, dict]:
+def __load_station_config__(config_file: str):
     """
     Loads the configuration for WS2801/neopixel based setups.
 

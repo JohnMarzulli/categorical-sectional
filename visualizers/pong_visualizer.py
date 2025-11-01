@@ -8,8 +8,6 @@ from visualizers.rainbow_visualizer import wheel
 
 class PongVisualizer(Visualizer):
     def __init__(self, renderer: Renderer, stations: dict):
-        self.__ball_color__ = [255, 255, 255]
-        self.__trail_color__ = [240, 173, 31] # Orange
         self.__off__ = [0, 0, 0]
         # The lower the adjustment, the slower the lights. 0.5 is half the speed.
         # The higher the adjustment, the faster the lights. 2 is twice the speed.
@@ -42,11 +40,11 @@ class PongVisualizer(Visualizer):
         self.__renderer__.set_led(index, brightness_adjusted_color)
 
         trail_brightness = brightness_adjustment
-        
+
         for trail_index in range(1, 3):
             true_trail_index = index - (trail_index * self.__direction__)
             color = wheel(true_trail_index & 255)
             trail_brightness /= 2.0
-            self.__renderer__.set_led(true_trail_index, colors_lib.get_brightness_adjusted_color(self.__trail_color__, trail_brightness))
+            self.__renderer__.set_led(true_trail_index, colors_lib.get_brightness_adjusted_color(color, trail_brightness))
 
         self.__renderer__.show()

@@ -19,17 +19,20 @@ class HalloweenLights(Visualizer):
         current_seconds = datetime.now(timezone.utc).second * self.__speed_adjustment__
         pixel_count = configuration.CONFIG[configuration.PIXEL_COUNT_KEY]
         brightness_adjustment = configuration.get_brightness_proportion()
-        brightness_adjusted_colors = [colors_lib.get_brightness_adjusted_color(color, brightness_adjustment)  for color in self.__colors__]
+        brightness_adjusted_colors = [colors_lib.get_brightness_adjusted_color(color, brightness_adjustment) for color in self.__colors__]
         color_count = len(brightness_adjusted_colors)
 
         mod_second = current_seconds % color_count
 
         for i in range(pixel_count):
-            color_index = (i + mod_second)
-            color_index = color_index if color_index < color_count else color_index - color_count
-            color_index = color_index if color_index >= 0 else color_index + color_count
-            color = brightness_adjusted_colors[color_index]
+            try:
+                color_index = (i + mod_second)
+                color_index = color_index if color_index < color_count else color_index - color_count
+                color_index = color_index if color_index >= 0 else color_index + color_count
+                color = brightness_adjusted_colors[color_index]
 
-            self.__renderer__.set_led(i, color)
+                self.__renderer__.set_led(i, color)
+            except Exception as ex:
+                print('While attempting to set LED:{i} in mod_second:{mod_second} to color_index:{color_index}. color_count:{color_count} EX={ex}')
 
         self.__renderer__.show()

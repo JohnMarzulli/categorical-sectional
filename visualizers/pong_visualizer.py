@@ -12,7 +12,7 @@ class PongVisualizer(Visualizer):
         self.__off__ = [0, 0, 0]
         # The lower the adjustment, the slower the lights. 0.5 is half the speed.
         # The higher the adjustment, the faster the lights. 2 is twice the speed.
-        self.__speed_adjustment__ = 8
+        self.__speed_adjustment__ = 16
         self.__incremental_index__: float = 0
         self.__direction__:int = 1
         super().__init__(renderer, stations)

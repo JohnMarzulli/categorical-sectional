@@ -441,6 +441,21 @@ This mode cycles all of the stations through the spectrum, but all stations shif
 
 ![Light Cycle](./media/visualizer_light_cycle.jpg)
 
+## Development Setup
+
+If you are planning on testing, modifying, or tinkering with this code, you will need to install some Python tools.
+
+For a Linux environment, you will need to setup a "virtual env".
+
+From inside the code directory, you may need to:
+
+```bash
+# Demonstrates for CachyOs/Arch
+python -m venv .venv
+source ./.venv/bin/activate.fish
+pip3 install setuptools requests pytest
+```
+
 ## Apendix
 
 <https://learn.adafruit.com/12mm-led-pixels/wiring>

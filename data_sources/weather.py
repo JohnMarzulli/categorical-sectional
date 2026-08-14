@@ -242,7 +242,9 @@ def __get_metar_reports_from_web__(airport_icao_codes: list) -> dict:
     for line in stream_lines:
         line_as_string = line.decode("utf-8")
 
-        if not line.startswith(b'METAR'):
+        is_report:bool = line.startswith(b'METAR') or line.startswith(b'SPECI')
+
+        if not is_report:
             safe_log("Skipping line as it does not start with 'METAR': {}".format(
                 line_as_string))
             continue

@@ -648,19 +648,28 @@ def get_metar_reports_from_web(
     metar_list = "%20".join(airport_icao_codes)
     request_url = 'https://www.aviationweather.gov/api/data/metar?ids={}&format=raw&hours=0&taf=off'.format(
         metar_list)
+    safe_log("Requesting METARs from URL: {}".format(request_url))
     stream = urllib.request.urlopen(request_url, timeout=2)
     stream_lines = stream.readlines()
     stream.close()
 
     for line in stream_lines:
+        safe_log("Processing line: {}".format(line))
+
         line_as_string = line.decode("utf-8")
+        safe_log("Decoded line as string: {}".format(line_as_string))
 
         if not line.startswith(b'METAR'):
+            safe_log("Skipping line as it does not start with 'METAR': {}".format(
+                line_as_string))
             continue
 
         line_as_string = line_as_string.split('METAR')[1].strip()
+        safe_log("Stripped 'METAR' prefix, remaining line: {}".format(
+            line_as_string))
 
         identifier, metar = get_metar_from_report_line(line_as_string)
+        safe_log("Parsed identifier: {}, METAR: {}".format(identifier, metar))
 
         if identifier is None:
             continue
@@ -977,7 +986,7 @@ def get_pressure(
 
     try:
         for component in components:
-            is_altimeter = re.search('A\d{4}', component) is not None
+            is_altimeter = re.search('A\\d{4}', component) is not None
 
             if is_altimeter:
                 inches_of_mercury = float(component.split('A')[1]) / 100.0

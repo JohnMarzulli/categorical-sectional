@@ -646,7 +646,7 @@ def get_metar_reports_from_web(
 
     metars = {}
     metar_list = "%20".join(airport_icao_codes)
-    request_url = 'https://www.aviationweather.gov/api/data/metar?ids={}&format=raw&hours=0&taf=off'.format(
+    request_url = 'https://aviationweather.gov/api/data/metar?ids={}&format=raw&hours=0&taf=off'.format(
         metar_list)
     safe_log("Requesting METARs from URL: {}".format(request_url))
     stream = urllib.request.urlopen(request_url, timeout=2)

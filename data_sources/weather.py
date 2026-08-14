@@ -20,7 +20,8 @@ if __name__ == "__main__":
 
     # Ensure the parent directory is in sys.path so 'managers' can be imported
     # This is only needed if running the unit tests directly
-    sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+    sys.path.append(os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "..")))
 
 from lib.cache import Cache, CacheResult
 from lib.safe_logging import safe_log, safe_log_warning
@@ -177,7 +178,8 @@ def __get_metar_from_report_line__(metar_report_line_from_webpage):
     metar_report = None
 
     try:
-        metar_report = __extract_metar_from_html_line__(metar_report_line_from_webpage)
+        metar_report = __extract_metar_from_html_line__(
+            metar_report_line_from_webpage)
         metar_report = metar_report.replace("METAR ", "")
         metar_report = metar_report.replace("SPECI ", "")
 
@@ -209,7 +211,8 @@ def __is_station_ok_to_call__(icao_code: str) -> bool:
         return True
 
     try:
-        delta_time = datetime.now(timezone.utc) - __station_last_called__[icao_code]
+        delta_time = datetime.now(timezone.utc) - \
+            __station_last_called__[icao_code]
         time_since_last_call = (delta_time.total_seconds()) / 60.0
 
         return time_since_last_call > 1.0
@@ -230,7 +233,8 @@ def __get_metar_reports_from_web__(airport_icao_codes: list) -> dict:
 
     metars = {}
     metar_list: str = "%,".join(airport_icao_codes)
-    request_url = f"https://aviationweather.gov/api/data/metar?ids={metar_list}&hours=0&order=id%2C-obs&sep=true"
+    request_url = 'https://aviationweather.gov/api/data/metar?ids={}&format=raw&hours=0&taf=off'.format(
+        metar_list)
     stream = urllib.request.urlopen(request_url, timeout=2)
 
     stream_lines = stream.readlines()
@@ -238,7 +242,15 @@ def __get_metar_reports_from_web__(airport_icao_codes: list) -> dict:
     for line in stream_lines:
         line_as_string = line.decode("utf-8")
 
-        identifier, metar_report = __get_metar_from_report_line__(line_as_string)
+        if not line.startswith(b'METAR'):
+            safe_log("Skipping line as it does not start with 'METAR': {}".format(
+                line_as_string))
+            continue
+
+        line_as_string = line_as_string.split('METAR')[1].strip()
+
+        identifier, metar_report = __get_metar_from_report_line__(
+            line_as_string)
 
         if identifier is None:
             continue
@@ -256,7 +268,8 @@ if __name__ == "__main__":
 
     print("Starting self-test")
 
-    airports_to_test = ["KW29", "KMSN", "KAWO", "KOSH", "KBVS", "KDOESNTEXIST", "KVOK"]
+    airports_to_test = ["KW29", "KMSN", "KAWO",
+                        "KOSH", "KBVS", "KDOESNTEXIST", "KVOK"]
     starting_date_time = datetime.now(timezone.utc)
     utc_offset = timezone.utcoffset(timezone.utc, datetime.now())
 
@@ -266,7 +279,8 @@ if __name__ == "__main__":
     print(f"BATCH={joined_metar_report}")
 
     for identifier in airports_to_test:
-        faa_csv_identifer = data_sources.airports.get_faa_csv_identifier(identifier)
+        faa_csv_identifer = data_sources.airports.get_faa_csv_identifier(
+            identifier)
 
         metar: Metar = get_metar(identifier)
 

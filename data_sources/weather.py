@@ -646,28 +646,29 @@ def get_metar_reports_from_web(
 
     metars = {}
     metar_list = "%20".join(airport_icao_codes)
-    request_url = 'http://www.aviationweather.gov/metar/data?ids={}&format=raw&hours=0&taf=off&layout=off&date=0'.format(
+    request_url = 'https://www.aviationweather.gov/api/data/metar?ids={}&format=raw&hours=0&taf=off'.format(
         metar_list)
     stream = urllib.request.urlopen(request_url, timeout=2)
-    data_found = False
     stream_lines = stream.readlines()
     stream.close()
+
     for line in stream_lines:
         line_as_string = line.decode("utf-8")
-        if '<!-- Data starts here -->' in line_as_string:
-            data_found = True
-        elif '<!-- Data ends here -->' in line_as_string:
-            break
-        elif data_found:
-            identifier, metar = get_metar_from_report_line(line_as_string)
 
-            if identifier is None:
-                continue
+        if not line.startswith(b'METAR'):
+            continue
 
-            # If we get a good report, go ahead and shove it into the results.
-            if metar is not None:
-                metars[identifier] = metar
-                __station_last_called__[identifier] = datetime.utcnow()
+        line_as_string = line_as_string.split('METAR')[1].strip()
+
+        identifier, metar = get_metar_from_report_line(line_as_string)
+
+        if identifier is None:
+            continue
+
+        # If we get a good report, go ahead and shove it into the results.
+        if metar is not None:
+            metars[identifier] = metar
+            __station_last_called__[identifier] = datetime.utcnow()
 
     return metars
 
@@ -854,12 +855,12 @@ def get_visibility(
     match = re.search('( [0-9] )?([0-9]/?[0-9]?SM)', metar)
     is_smoke = re.search('.* FU .*', metar) is not None
     # Not returning a visibility indicates UNLIMITED
-    if(match == None):
+    if (match == None):
         return VFR
     (g1, g2) = match.groups()
-    if(g2 == None):
+    if (g2 == None):
         return INVALID
-    if(g1 != None):
+    if (g1 != None):
         if is_smoke:
             return SMOKE
         return IFR
@@ -912,7 +913,7 @@ def get_ceiling(
             try:
                 ceiling = int(''.join(filter(str.isdigit, component))) * 100
 
-                if(ceiling < minimum_ceiling):
+                if (ceiling < minimum_ceiling):
                     minimum_ceiling = ceiling
             except Exception as ex:
                 safe_log_warning(

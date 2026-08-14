@@ -462,6 +462,7 @@ From inside the code directory, you may need to:
 
 ```bash
 # Demonstrates for CachyOs/Arch
+# You may need to use a different version of `activate` for your flavor of Linux
 python -m venv .venv
 source ./.venv/bin/activate.fish
 pip3 install setuptools requests pytest

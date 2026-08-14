@@ -232,7 +232,7 @@ def __get_metar_reports_from_web__(airport_icao_codes: list) -> dict:
     """
 
     metars = {}
-    metar_list: str = "%,".join(airport_icao_codes)
+    metar_list: str = ",".join(airport_icao_codes)
     request_url = 'https://aviationweather.gov/api/data/metar?ids={}&format=raw&hours=0&taf=off'.format(
         metar_list)
     stream = urllib.request.urlopen(request_url, timeout=2)
@@ -246,8 +246,6 @@ def __get_metar_reports_from_web__(airport_icao_codes: list) -> dict:
             safe_log("Skipping line as it does not start with 'METAR': {}".format(
                 line_as_string))
             continue
-
-        line_as_string = line_as_string.split('METAR')[1].strip()
 
         identifier, metar_report = __get_metar_from_report_line__(
             line_as_string)

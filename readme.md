@@ -29,6 +29,18 @@ To finish the installation you will need a monitor, and a keyboard.
 
 The parts manifest lists a Raspberry Pi Zero due to its size and lower power consumption, but a Raspberry Pi 3 is also suitable. The wiring diagram does not change. You may want to consider using a Pi3b for installations of 150 LEDs or more to retain performance and responsiveness in the remote control application.
 
+## Patching Existing Installations
+
+*IF* you have a newer version that contains the configuration files in the `/home/pi/weather_map` location, simply:
+
+```bash
+cd /home/pi/categorical-sectional
+git fetch --prune
+git checkout release
+git pull
+sudo reboot now
+```
+
 ## Setup
 
 ### Parts List
@@ -162,7 +174,6 @@ This will transition/fade into yellow from the standard category color.
 
 Setting this to `false` will result in the category color fading. The amount the category fades is determined by `night_category_proportion`
 
-
 #### snow_pulse
 
 Set this to `true` if you would like stations that are reporting snow to pulse between a low light and white while using the Precipitation visualizer. This is overriden by the twinkle option.
@@ -183,7 +194,7 @@ The default value is `0.05`, or 5%. This means that when the station is in "full
 
 This creates a pleasant fade as stations on the chart transition from day to night, back to day.
 
-_NOTE:_ This will not work with standard mode GPIO based LEDs.
+*NOTE:* This will not work with standard mode GPIO based LEDs.
 
 #### brightness_proportion
 
@@ -253,7 +264,7 @@ This starts with an airport or weather station identifier.
 
 Next to contains a "neopixel" identifier. This is the order of the light on the strand.
 
-_NOTE:_ The first light is "0", the second light is "1".
+*NOTE:* The first light is "0", the second light is "1".
 
 Due to the way your lights may need to be arranged to fit on the map, some lights may need to be skipped, so keep track of your lights.
 
@@ -334,7 +345,7 @@ To run it at boot, perform the following steps:
 1. `systemctl start rng-tools`
 1. `crontab -e`
 1. Select "Nano" (Option 1)
-1. Enter the following text at the _bottom_ of the file: `@reboot sleep 90 && python3 /home/pi/categorical-sectional/controller.py &`
+1. Enter the following text at the *bottom* of the file: `@reboot sleep 90 && python3 /home/pi/categorical-sectional/controller.py &`
 1. Save the file and exit.
 1. sudo reboot now
 
@@ -484,6 +495,7 @@ pip3 install setuptools requests pytest
 ## Credits
 
 Airport Location data from <http://ourairports.com/data/> Airport sunrise/sunset data from <https://sunrise-sunset.org/api>
+METAR data from NOAA - <https://aviationweather.gov/data/api/#api>
 
 ## License
 

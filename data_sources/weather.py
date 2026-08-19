@@ -96,47 +96,26 @@ def get_metars(airport_icao_codes: list) -> dict:
         airport_icao_code {string} -- The list of ICAO code for the weather station.
 
     Returns:
-        dictionary - A dictionary (keyed by airport code) of the RAW metars.
-        Returns INVALID as the value for the key if an error occurs.
+        dictionary - A dictionary (keyed by airport code) of the RAW metars that were retrieved.
+        An entry will be missing if the METAR could not be retrieved for that station.
     """
 
-    metars: dict = {}
+    metars: dict = __get_cached_metars__(airport_icao_codes)
 
-    # For the airports and identifiers that we were not able to get
-    # a result for, see if we can fill in the results.
-    for identifier in airport_icao_codes:
-        # If we did not get a report, but do
-        # still have an old report, then use the old
-        # report.
-        result: CacheResult = __metar_report_cache__.get(identifier)
-        cache_valid: bool = result.is_valid
-        report = result.value
+    # First determine which stations we can make a METAR call for.
+    # From those that are already in the cache, use those as a starting point.
+    # If a new result is returned, merge that back into the results AND update the cache
+    # in order to reduce call counts.
+    #
+    # The NOAA API call limits to something around 100 calls per minute (which we should be we below)
+    metars_to_fetch: list = [ident for ident
+                             in airport_icao_codes
+                             if __is_station_ok_to_call__(ident) or not ident in metars]
+    fetched_metars: dict = __get_metar_reports_from_web__(metars_to_fetch)
 
-        is_ready_to_call = __is_station_ok_to_call__(identifier)
-
-        if cache_valid and report is not None and not is_ready_to_call:
-            # Falling back to cached METAR for rate limiting
-            metars[identifier] = report
-        else:
-            try:
-                new_metars = __get_metar_reports_from_web__([identifier])
-                new_report = new_metars[identifier]
-
-                safe_log(f"New WX for {identifier}={new_report.metar}")
-
-                if not new_report.is_valid():
-                    continue
-
-                __metar_report_cache__.set(identifier, new_report)
-                metars[identifier] = new_report
-
-                safe_log(f"{identifier}:{new_report}")
-
-            except Exception as e:
-                safe_log_warning(f"get_metars, being set to INVALID EX:{e}")
-
-                if identifier in metars:
-                    metars.pop(identifier)
+    for identifier, new_metar in fetched_metars.items():
+        __metar_report_cache__.set(identifier, new_metar)
+        metars[identifier] = new_metar
 
     return metars
 
@@ -220,6 +199,18 @@ def __is_station_ok_to_call__(icao_code: str) -> bool:
         return True
 
 
+def __get_cached_metars__(airport_icao_codes: list) -> dict:
+    cached_metars: dict = {}
+
+    for identifier in airport_icao_codes:
+        result: CacheResult = __metar_report_cache__.get(identifier)
+
+        if result.is_valid and result.value is not None:
+            cached_metars[identifier] = result.value
+
+    return cached_metars
+
+
 def __get_metar_reports_from_web__(airport_icao_codes: list) -> dict:
     """
     Calls to the web an attempts to gets the METARs for the requested station list.
@@ -230,6 +221,9 @@ def __get_metar_reports_from_web__(airport_icao_codes: list) -> dict:
     Returns:
         dictionary -- Returns a map of METARs keyed by the station code.
     """
+
+    if not airport_icao_codes or len(airport_icao_codes) < 1:
+        return {}
 
     metars = {}
     metar_list: str = ",".join(airport_icao_codes)
@@ -242,7 +236,8 @@ def __get_metar_reports_from_web__(airport_icao_codes: list) -> dict:
     for line in stream_lines:
         line_as_string = line.decode("utf-8")
 
-        is_report:bool = line.startswith(b'METAR') or line.startswith(b'SPECI')
+        is_report: bool = line.startswith(
+            b'METAR') or line.startswith(b'SPECI')
 
         if not is_report:
             safe_log("Skipping line as it does not start with 'METAR': {}".format(

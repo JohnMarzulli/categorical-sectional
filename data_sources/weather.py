@@ -36,56 +36,17 @@ DEFAULT_METAR_LIFESPAN_MINUTES = 60
 DEFAULT_METAR_INVALIDATE_MINUTES = DEFAULT_METAR_LIFESPAN_MINUTES * 1.5
 
 
-def get_metar(airport_icao_code: str, use_cache: bool = True) -> Metar:
+def get_metar(airport_icao_code: str) -> Metar:
     """
     Returns the (RAW) METAR for the given station
 
     Arguments:
         airport_icao_code {string} -- The ICAO code for the weather station.
-
-    Keyword Arguments:
-        use_cache {bool} -- Should we use the cache? Set to false to bypass the cache. (default: {True})
     """
 
-    if airport_icao_code is None or not airport_icao_code:
-        safe_log("Invalid or empty airport code")
+    metars = get_metars([airport_icao_code])
 
-    result: CacheResult = __metar_report_cache__.get(airport_icao_code)
-    is_cache_valid: bool = result.is_valid
-    cached_metar: Metar = result.value  # type: ignore
-
-    # Make sure that we used the most recent reports we can.
-    # Metars are normally updated hourly.
-    if is_cache_valid and cached_metar is not None:
-        metar_age = cached_metar.get_age().total_seconds() / 60.0
-
-        if use_cache and metar_age < DEFAULT_METAR_LIFESPAN_MINUTES:
-            return cached_metar
-
-    try:
-        metars = get_metars([airport_icao_code])
-
-        if metars is None:
-            safe_log(
-                f"Get a None while attempting to get METAR for {airport_icao_code}"
-            )
-
-            return Metar("")
-
-        if airport_icao_code not in metars:
-            safe_log(
-                f"Got a result, but {airport_icao_code} was not in results package"
-            )
-
-            return Metar("")
-
-        return metars[airport_icao_code]
-
-    except Exception as e:
-        safe_log(f"get_metar got EX:{e}")
-        safe_log("")
-
-        return Metar("")
+    return metars[airport_icao_code]
 
 
 def get_metars(airport_icao_codes: list) -> dict:
@@ -110,7 +71,8 @@ def get_metars(airport_icao_codes: list) -> dict:
     # The NOAA API call limits to something around 100 calls per minute (which we should be we below)
     metars_to_fetch: list = [ident for ident
                              in airport_icao_codes
-                             if __is_station_ok_to_call__(ident) or not ident in metars]
+                             if __is_station_ok_to_call__(ident)
+                             or (not ident in metars)]
     fetched_metars: dict = __get_metar_reports_from_web__(metars_to_fetch)
 
     for identifier, new_metar in fetched_metars.items():
@@ -192,9 +154,9 @@ def __is_station_ok_to_call__(icao_code: str) -> bool:
     try:
         delta_time = datetime.now(timezone.utc) - \
             __station_last_called__[icao_code]
-        time_since_last_call = (delta_time.total_seconds()) / 60.0
+        minutes_since_last_call = (delta_time.total_seconds()) / 60.0
 
-        return time_since_last_call > 1.0
+        return minutes_since_last_call > 1.0
     except Exception:
         return True
 

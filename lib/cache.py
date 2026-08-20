@@ -28,61 +28,55 @@ class Cache:
         self.__cache__: dict = {}
         self.__max_cache_life_minutes__: int = max_cache_life_minutes
 
-    def set(self, station_icao_code: str, value):
+    def set(self, key: str, value):
         """
         Sets the given cache to have the given value.
         Automatically sets the cache saved time.
 
         Arguments:
-            airport_icao_code {str} -- The code of the station to cache the results for.
-            cache {dictionary} -- The cache keyed by airport code.
+            key {str} -- The key of the cache entry.
             value {object} -- The value to store in the cache.
         """
 
         self.__cache_lock__.acquire()
         try:
-            self.__cache__[station_icao_code] = CacheEntry(
+            self.__cache__[key] = CacheEntry(
                 value, self.__max_cache_life_minutes__
             )
         finally:
             self.__cache_lock__.release()
 
-    def get_or_set(self, station: str, function) -> CacheResult:
-        result = self.get(station)
+    def get_or_set(self, key: str, function) -> CacheResult:
+        result = self.get(key)
 
         if not result.is_valid:
             new_value = function()
 
             if new_value is not None:
-                self.set(station, new_value)
+                self.set(key, new_value)
 
-            return self.get(station)
+            return self.get(key)
 
         return result
 
-    def get(self, station_icao_code: str) -> CacheResult:
+    def get(self, key: str) -> CacheResult:
         """
-        Returns TRUE and the cached value if the cached value
-        can still be used.
+        Returns a CacheResult for the given key in the cache
 
         Arguments:
-            airport_icao_code {str} -- The airport code to get from the cache.
-            cache {dictionary} -- Tuple of last update time and value keyed by airport code.
-            cache_life_in_minutes {int} -- How many minutes until the cached value expires
+            key {str} -- The name of the item in the cache
 
         Returns:
-            [type] -- [description]
+            CacheResult -- The item (and a validity flag) from the cache.
         """
 
         self.__cache_lock__.acquire()
 
-        now = datetime.now(timezone.utc)
-
         try:
-            if station_icao_code in self.__cache__:
+            if key in self.__cache__:
                 return CacheResult(
-                    self.__cache__[station_icao_code].is_valid(),
-                    self.__cache__[station_icao_code].value,
+                    self.__cache__[key].is_valid(),
+                    self.__cache__[key].value,
                 )
         except Exception:
             pass

@@ -67,8 +67,6 @@ class Metar:
 
     def get_timestamp(self, current_time: datetime = lib.time.now_utc()) -> datetime:
         try:
-            metar_date = current_time - timedelta(days=31)
-
             if (
                 self.metar is not None
                 and self.metar != meteorology.types.classifications.INVALID
@@ -80,22 +78,34 @@ class Metar:
                 hour = int(partial_date_time[2:4])
                 minute = int(partial_date_time[4:6])
 
-                metar_date = datetime(
-                    current_time.year,
-                    current_time.month,
-                    day_number,
-                    hour,
-                    minute,
-                    tzinfo=timezone.utc,
-                )
-
-                # Assume that the report is from the past, and work backwards.
+                # Walk backwards a day at a time from "now" until we find a
+                # month/year where day_number is valid, then build the final
+                # datetime from THAT candidate's year/month. Building the
+                # datetime up front from (current_time.year,
+                # current_time.month, day_number, ...) raises ValueError
+                # whenever day_number belongs to the previous month (e.g. it
+                # is the 1st of the month but the latest METAR is still
+                # dated the 31st of the prior month, which has no 31st in
+                # the new month) -- and that exception used to skip the
+                # backward-correction loop entirely, falling through to the
+                # "30 days old" fallback below and marking every station
+                # inactive at every month rollover.
+                candidate = current_time
                 days_back = 0
-                while metar_date.day != day_number and days_back <= 31:
-                    metar_date -= timedelta(days=1)
+                while days_back <= 31:
+                    if candidate.day == day_number:
+                        return datetime(
+                            candidate.year,
+                            candidate.month,
+                            day_number,
+                            hour,
+                            minute,
+                            tzinfo=timezone.utc,
+                        )
+                    candidate -= timedelta(days=1)
                     days_back += 1
 
-            return metar_date
+            return current_time - timedelta(days=31)
         except Exception:
             return datetime.now(timezone.utc) - timedelta(days=30)
 
